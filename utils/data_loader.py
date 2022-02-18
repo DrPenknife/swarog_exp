@@ -334,6 +334,11 @@ class DataLoader():
         return pd.DataFrame({'text':txt, 'labels':lab})
 
     def load_compact(self):
+        filepath=self.path + 'x_compact.pickle'
+        if not os.path.exists(filepath):
+            print("creating intermediate text representation...")
+            self.make_compact()
+
         with open(self.path + 'x_compact.pickle', 'rb') as handle:
             x = pickle.load(handle)
         with open(self.path + 'y_compact.pickle', 'rb') as handle:
