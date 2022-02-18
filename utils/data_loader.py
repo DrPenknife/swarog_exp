@@ -117,7 +117,6 @@ class DataLoader():
 
         if environment == "colab":
             self.IN_COLAB = True
-            /content/6pack
             self.path = f'/content/6pack/{self.datasetname}/'
             self.modelspath=f"/content/models/{self.datasetname}/"
             self.modelspath2=f"/content/models/"
