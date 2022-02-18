@@ -443,15 +443,4 @@ class DataLoader():
 
 
 
-    
-_dl__ = DataLoader()
-_dl__.setpaths()
-
-if _dl__.pickleversion == 5:
-    import pickle5 as pickle
-    print("using pickle5")
-else: 
-    import pickle
-    
-
 
