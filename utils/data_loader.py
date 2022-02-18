@@ -447,6 +447,12 @@ class DataLoader():
     def load_bert_out(self, sumarized_text=False):
         name = 'distilber_vectors.pickle' if sumarized_text == False else 'distilber_sumarized_vectors.pickle'
         print("dump_bert_out, sumarized_text:",sumarized_text)
+        filepath = self.path + name
+        if not os.path.exists(filepath):
+            print("creating intermediate text representation...")
+            dl.tokenize_with_distilbert()
+            dl.dump_bert_out()
+
         with open(self.path + name, 'rb') as handle:
             print('  opened',self.path + name)
             mojadata = pickle.load(handle)
