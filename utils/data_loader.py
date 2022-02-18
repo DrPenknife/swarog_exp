@@ -282,7 +282,7 @@ class DataLoader():
         if self.datasetname == "covid19fn":
             from pandasql import sqldf
             print("load",self.path + "data.csv")
- 
+            dsfile = pd.read_csv(self.path + "data.csv",sep=",")
             # yes, labels are swpped 
             fake = sqldf("select headlines as text, outcome from dsfile where outcome=0 and length(text) > 10", locals())
             real = sqldf("select headlines as text, outcome from dsfile where outcome=1 and length(text) > 10", locals())
