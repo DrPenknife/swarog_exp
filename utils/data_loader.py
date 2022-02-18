@@ -118,7 +118,7 @@ class DataLoader():
 
         if environment == "colab":
             self.IN_COLAB = True
-            base="/content/drive/MyDrive/swarog/"
+            base="/content/drive/MyDrive/swarog"
             self.path = f'{base}/datasets/6pack/{self.datasetname}/'
             self.modelspath=f"{base}/models/{self.datasetname}/"
             self.modelspath2=f"{base}/models/"
