@@ -115,7 +115,7 @@ class DataLoader():
         self.pickleversion = -1
         print("Using", self.datasetname, 'dataset')
 
-        if environment = "colab":
+        if environment == "colab":
             self.IN_COLAB = True
             self.path = f'/content/drive/MyDrive/swarog/datasets/{self.datasetname}/'
             self.modelspath=f"/content/drive/MyDrive/swarog/models/{self.datasetname}/"
@@ -123,14 +123,14 @@ class DataLoader():
             self.pickleversion = 5
             print('using colab')
 
-        elif environment = "mypc1":
+        elif environment == "mypc1":
             self.pickleversion = 5
             print("using my windows...")
             self.path = f'c:/Users/demo/Desktop/sciwork/data/swarog/datasets/{self.datasetname}/'
             self.modelspath = f'c:/Users/demo/Desktop/sciwork/data/swarog/models/{self.datasetname}/'
             self.modelspath2 = f'c:/Users/demo/Desktop/sciwork/data/swarog/models/'
         
-        elif environment = "mypc2":
+        elif environment == "mypc2":
             print('using local')
             self.path = f'/media/rkozik/0C129CFC129CEBC8/data/swarog/datasets/{self.datasetname}/'
             self.modelspath=f"/media/rkozik/0C129CFC129CEBC8/data/swarog/models/{self.datasetname}/"
