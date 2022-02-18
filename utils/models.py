@@ -5,7 +5,8 @@ import tensorflow as tf
 
 class BaseLine:
     name = "Baseline"
-    def __init__(self, class_weight={0:1, 1:1}, trees=50):
+    def __init__(self, class_weight={0:1, 1:1}, trees=50, verbose=0):
+        self.verbose=verbose
         self.trees = trees
         self.class_weight = class_weight
         
@@ -15,47 +16,11 @@ class BaseLine:
         pred_proba = rf.predict_proba(val_x)
         pred = rf.predict(val_x)
         p = np.array([pred_proba[i][cl] for i,cl in enumerate(pred)])
-        print(classification_report(val_y, pred))
+        if self.verbose > 0:
+            print(classification_report(val_y, pred))
         return pred,p
     
     
-class Ensemble:
-    name = "Ensemble"
-    def __init__(self, class_weight={0:1, 1:1}, trees=10, ensemble_size=50):
-        self.trees = trees
-        self.class_weight = class_weight
-        self.feature_map = []
-        self.ensemble_size=ensemble_size
-        for i in range(ensemble_size):
-            self.feature_map.append({'wid':[],'widv':[]})
-            self.feature_map[i]['wid'] = np.random.randint(256, size=50)
-            self.feature_map[i]['widv'] = np.random.randint(300, size=20)
-        
-    def predict(self, trn_x, trn_y, val_x, val_y):
-        print("shape",trn_x.shape)
-        
-        mycnn = Sequential()      # initilaizing the Sequential nature for CNN model
-        mycnn.add(Conv1D(4, 9, activation='relu' ,input_shape=(MAX_SEQUENCE_LENGTH,300,)))
-#         mycnn.add(MaxPooling1D(pool_size=4))
-#         mycnn.add(Conv1D(16, 3, activation='relu' ,input_shape=(MAX_SEQUENCE_LENGTH,300,)))
-#         mycnn.add(MaxPooling1D(pool_size=2))
-        mycnn.add(Flatten())
-        mycnn.add(Dense(1, activation='sigmoid'))
-
-        mycnn.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.01),
-                      loss='binary_crossentropy',
-                      metrics=['accuracy'])
-
-        mycnn.fit(trn_x, trn_y, validation_data=(val_x, val_y), epochs=5, 
-                  batch_size=32, verbose=0, class_weight=weights)
-        
-        self.model = mycnn
-        yprob = mycnn.predict(val_x, batch_size=64, verbose=0)
-        ypred = [1 if y > 0.5 else 0 for y in yprob]
-        print(classification_report(val_y, ypred))
- 
-        return ypred, yprob
-
 #
 ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 #
@@ -73,12 +38,13 @@ nltk.download('punkt')
 
 class Baseline2:
     name = "Tfidf+RF"
-    def __init__(self, class_weight={0:1, 1:1}, trees=50, replicatedata=1, max_features=1024):
+    def __init__(self, class_weight={0:1, 1:1}, trees=50, replicatedata=1, max_features=1024, verbose=0):
         self.trees = trees
         self.class_weight = class_weight
         self.replicatedata = replicatedata
         self.max_features=max_features
-        
+        self.verbose=verbose
+
     def clean(self, text):
         wn = nltk.WordNetLemmatizer()
         stopword = nltk.corpus.stopwords.words('english')
@@ -166,10 +132,11 @@ class Baseline2:
         pred = rf.predict(X_test_feat)
         p = np.array([pred_proba[i][cl] for i,cl in enumerate(pred)])
         
-        print(classification_report(val_y, pred))
-        print("balanced_accuracy\n",balanced_accuracy_score(val_y, pred))
-        print("confusion_matrix\n",confusion_matrix(val_y, pred))
-        
+        if self.verbose > 0:
+            print(classification_report(val_y, pred))
+            print("balanced_accuracy\n",balanced_accuracy_score(val_y, pred))
+            print("confusion_matrix\n",confusion_matrix(val_y, pred))
+            
         return pred,p
         
 #
@@ -196,98 +163,13 @@ weights = {0:1, 1:10}
 
 top_words = 7000
  
-
-
-class PathDeducer:
-    def setpaths(self,dsname='fakenewskdd2020'):
-        self.datasetname = dsname
-        print("Using", self.datasetname, 'dataset')
-        try:
-            import google.colab
-            self.IN_COLAB = True
-            self.path = f'/content/drive/MyDrive/swarog/datasets/{self.datasetname}/'
-            self.modelspath=f"/content/drive/MyDrive/swarog/models/{self.datasetname}/"
-            import pickle5 as pickle
-            print('using colab')
-            print(self.path)
-            print(self.modelspath)
-        except:
-            self.IN_FNKDDCOLAB = False
-            
-            import os
-            if 'nt' == os.name:
-                import pickle5 as pickle
-                print("using my windows...")
-                self.path = f'c:/Users/demo/Desktop/sciwork/data/swarog/datasets/{self.datasetname}/'
-                self.modelspath = f'c:/Users/demo/Desktop/sciwork/data/swarog/models/{self.datasetname}/'
-            else:
-                import pickle
-                print('using local')
-                self.path = f'/media/rkozik/0C129CFC129CEBC8/data/swarog/datasets/{self.datasetname}/'
-                self.modelspath=f"/media/rkozik/0C129CFC129CEBC8/data/swarog/models/{self.datasetname}/"
-                
-            print(self.path)
-            print(self.modelspath)
-
-
-class CNN1:
-    name = "cnn"
-    def predict(self, trn_x, trn_y, val_x, val_y):
-        mycnn = Sequential()      # initilaizing the Sequential nature for CNN model
-        mycnn.add(Embedding(top_words, 32, input_length=MAX_SEQUENCE_LENGTH))
-        mycnn.add(Conv1D(320, 12, padding='same', activation='relu' ))
-        mycnn.add(MaxPooling1D())
-        mycnn.add(Conv1D(240, 6, padding='same', activation='relu'))
-        mycnn.add(MaxPooling1D())
-        mycnn.add(Conv1D(160, 7, padding='same', activation='relu'))
-        mycnn.add(MaxPooling1D())
-        mycnn.add(Conv1D(80, 5, padding='same', activation='relu' ))
-        mycnn.add(MaxPooling1D())
-        mycnn.add(Conv1D(40, 3, padding='same', activation='relu' ))
-        mycnn.add(MaxPooling1D())
-        mycnn.add(Flatten())
-        mycnn.add(Dense(140, activation='relu'))
-        mycnn.add(Dense(1, activation='sigmoid'))
-
-        mycnn.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.01),
-                      loss='binary_crossentropy',
-                      metrics=['accuracy'])
-
-        earlystopping = callbacks.EarlyStopping(monitor ="val_loss", 
-                                            mode ="min", patience = 5, 
-                                            restore_best_weights = True)
-
-        mycnn.fit(trn_x, trn_y, validation_data=(val_x, val_y), epochs=5, 
-                  batch_size=64, verbose=0, class_weight=weights)
-        self.model = mycnn
-        yprob = mycnn.predict(val_x, batch_size=64, verbose=0)
-        ypred = [1 if y > 0.5 else 0 for y in yprob]
-        print(classification_report(val_y, ypred))
-        return ypred, yprob
-
-    def forward(self, val_x, val_y):
-        mycnn = self.model
-        ypred = mycnn.predict(val_x, batch_size=64, verbose=0)
-        return [1 if y > 0.5 else 0 for y in ypred], ypred
-    
-    def save(self, dataset_name):
-        deducer = PathDeducer()
-        deducer.setpaths(dataset_name)
-        self.model.save(deducer.modelspath+self.name)
-        print("saved as ",deducer.modelspath+self.name)
-        
-    def load(self,dataset_name):
-        deducer = PathDeducer()
-        deducer.setpaths(dataset_name)
-        print("read from ", deducer.modelspath+self.name+"_head")
-        self.model=keras.models.load_model(deducer.modelspath+self.name)
-        
         
 class CNN2:
-    def __init__(self, class_weight={0:1, 1:5}, lr = 0.001, epochs=5):
+    def __init__(self, class_weight={0:1, 1:5}, lr = 0.001, epochs=5, verbose=0):
         self.class_weight = class_weight
         self.lr = lr
         self.epochs = epochs
+        self.verbose=verbose
     
     name = "cnn"
     def predict(self, trn_x, trn_y, val_x, val_y):
@@ -329,21 +211,22 @@ class CNN2:
                                             restore_best_weights = True)
 
         mycnn.fit(trn_x, trn_y, validation_data=(val_x, val_y), epochs=self.epochs, 
-                  batch_size=64, verbose=2, class_weight=self.class_weight)
+                  batch_size=64, verbose=self.verbose, class_weight=self.class_weight)
         self.model = mycnn
    
         pred, prob = self.forward(trn_x)        
-        print(classification_report(trn_y, pred))
-        print(confusion_matrix(trn_y, pred))
         
-        print("----")
+        if self.verbose > 0:
+            print(classification_report(trn_y, pred))
+            print(confusion_matrix(trn_y, pred))
+            print("----")
 
-        pred, prob = self.forward(val_x)        
-        print(classification_report(val_y, pred))
-        print(confusion_matrix(val_y, pred))
+        pred, prob = self.forward(val_x)
 
-        
-        
+        if self.verbose > 0:
+            print(classification_report(val_y, pred))
+            print(confusion_matrix(val_y, pred))
+
         return pred, prob
 
     def forward(self, val_x):
@@ -351,18 +234,7 @@ class CNN2:
         ypred = mycnn.predict(val_x, batch_size=64, verbose=0)
         return [1 if y > 0.5 else 0 for y in ypred], ypred
     
-    def save(self, dataset_name):
-        deducer = PathDeducer()
-        deducer.setpaths(dataset_name)
-        self.model.save(deducer.modelspath+self.name)
-        print("saved as ",deducer.modelspath+self.name)
-        
-    def load(self,dataset_name):
-        deducer = PathDeducer()
-        deducer.setpaths(dataset_name)
-        print("read from ", deducer.modelspath+self.name+"_head")
-        self.model=keras.models.load_model(deducer.modelspath+self.name)
-        
+
 #
 ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 #
@@ -377,6 +249,13 @@ from tensorflow import keras
 
 class LSTMModel:
     name = "lstm"
+    
+    def __init__(self, class_weight={0:1, 1:1}, lr = 0.001, epochs=5, verbose=0):
+        self.class_weight = class_weight
+        self.lr = lr
+        self.epochs = epochs
+        self.verbose=verbose
+
     def predict(self, trn_x, trn_y, val_x, val_y):
         embedding_vector_features=32
         model=Sequential()
@@ -416,7 +295,7 @@ class LSTMModel:
         earlystopping = callbacks.EarlyStopping(monitor ="accuracy", 
                                             mode ="min", patience = 5, 
                                             restore_best_weights = True)
-        model.fit(trn_x, trn_y, epochs=3, verbose=2, callbacks =[earlystopping], validation_data=(val_x,val_y))
+        model.fit(trn_x, trn_y, epochs=3, verbose=self.verbose, callbacks =[earlystopping], validation_data=(val_x,val_y))
         self.model = model
         yprob = np.array([v[0] for v in model.predict(val_x, batch_size=64, verbose=0)])
         
@@ -425,7 +304,8 @@ class LSTMModel:
  
         ypred = [1 if y > 0.5 else 0 for y in yprob]
        
-        print(classification_report(val_y, ypred))
+        if self.verbose:
+            print(classification_report(val_y, ypred))
         
         return ypred, yprob
     
@@ -436,204 +316,6 @@ class LSTMModel:
         modelpred = np.array([v[0] for v in model.predict(val_x, batch_size=64, verbose=0)])
         pred = [1 if y > 0.5 else 0 for y in modelpred]
         return pred, modelpred
-
-    def save(self, dataset_name):
-        deducer = PathDeducer()
-        deducer.setpaths(dataset_name)
-        self.model.save(deducer.modelspath+self.name)
-        print("saved as ",deducer.modelspath+self.name)
-        
-    def load(self,dataset_name):
-        deducer = PathDeducer()
-        deducer.setpaths(dataset_name)
-        print("read from ", deducer.modelspath+self.name+"_head")
-        self.model=keras.models.load_model(deducer.modelspath+self.name)
-
-#
-### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-#
-
-
-import pandas as pd
-import numpy as np
-from sklearn.model_selection import StratifiedKFold
-from sklearn.metrics import accuracy_score, balanced_accuracy_score, f1_score, precision_score, recall_score, roc_auc_score
-from sklearn.utils import shuffle
-import tensorflow as tf
-from transformers import AutoTokenizer, DistilBertConfig, TFDistilBertModel, DistilBertTokenizerFast
-from tensorflow.keras import optimizers
-from tensorflow.python.keras.callbacks import EarlyStopping, ModelCheckpoint
-from tensorflow import keras
-from sklearn.metrics import classification_report
-#from datasets import Dataset
-from transformers import DataCollatorWithPadding
-import warnings
-from tensorflow.keras.layers import Embedding
-from tensorflow.keras.preprocessing.sequence import pad_sequences
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.preprocessing.text import one_hot
-from tensorflow.keras.layers import LSTM
-from tensorflow.keras.layers import Dense
-from tensorflow.keras.layers import Bidirectional
-from tensorflow.keras.layers import Dropout
-import nltk
-from nltk.corpus import stopwords
-
-from sklearn.metrics import accuracy_score, balanced_accuracy_score, f1_score, precision_score, recall_score, roc_auc_score
-from imblearn.metrics import geometric_mean_score  
-MAX_SEQUENCE_LENGTH = 256 
-
-class BertMaly:
-    arch_created = False
-    
-    def __init__(self, class_weight={0:1, 1:1}):
-        self.class_weight = class_weight
-
-    def build_base(self):
-        config = DistilBertConfig()
-        config.output_hidden_states = False
-
-        # Preliminary BERT layer configuration
-        config = DistilBertConfig()
-        config.output_hidden_states = False 
-
-        transformer_model = TFDistilBertModel.from_pretrained('distilbert-base-uncased', config=config) 
-
-        MAX_LEN_SEQUENCE = 64
-
-        base = TFDistilBertModel.from_pretrained(
-            'distilbert-base-uncased',
-            # num_labels=NUM_LABELS    # no effect
-        ) 
-
-        for layer in base.layers:
-            layer.trainable = False
-
-        #ARCH 
-        input_ids = tf.keras.layers.Input(shape=(MAX_SEQUENCE_LENGTH,), dtype=tf.int32, name='input_ids')
-        attention_mask = tf.keras.layers.Input((MAX_SEQUENCE_LENGTH,), dtype=tf.int32, name='attention_mask')
-
-        output = base([input_ids, attention_mask]).last_hidden_state[:, 0, :]
-
-        return [input_ids, attention_mask], output
-
-    def create_head(self, output):
-        L2 = 1e-3
-
-        output = tf.keras.layers.Dropout(
-            rate=0.15,
-            name="01_dropout",
-        )(output)
-
-        output = tf.keras.layers.Dense(
-            units=768,
-            kernel_initializer='glorot_uniform',
-            activation=None,
-            name="01_dense_relu_no_regularizer",
-        )(output)
-        output = tf.keras.layers.BatchNormalization(
-            name="01_bn"
-        )(output)
-        output = tf.keras.layers.Activation(
-            "relu",
-            name="01_relu"
-        )(output)
-
-
-        output = tf.keras.layers.Dense(
-            units=768,
-            kernel_initializer='glorot_uniform',
-            activation=None,
-            name="02_dense_relu_no_regularizer",
-        )(output)
-        output = tf.keras.layers.BatchNormalization(
-            name="02_bn"
-        )(output)
-        output = tf.keras.layers.Activation(
-            "relu",
-            name="02_relu"
-        )(output)
-
-        output = tf.keras.layers.Dense(
-            units=2,
-            kernel_initializer='glorot_uniform',
-            kernel_regularizer=tf.keras.regularizers.l2(l2=L2),
-            activation='softmax',
-            name="softmax"
-        )(output)
-
-        return output
-
-
-    def predict(self, trn_x, trn_y, val_x, val_y): 
-        NUM_EPOCHS = 5
-        BATCH_SIZE = 32
-        LEARNING_RATE = 1e-2  
-        L2 = 1e-3
-        REDUCE_LR_PATIENCE = 1
-        EARLY_STOP_PATIENCE = 3
-
-        #tf.keras.backend.clear_sessiofloat32n()
-
-        if not self.arch_created: 
-            print('creating bert layers')
-            inp, outp = self.build_base()
-            outp = self.create_head(outp)
-            self.inp = inp
-            self.outp = outp
-            self.arch_created = True
-
-        print("create head")
-        inp, outp = self.inp, self.outp 
-
-        model = tf.keras.models.Model(inputs=inp, outputs=outp, name="bert")
-        model.compile(
-          loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False),
-          optimizer=tf.keras.optimizers.Adam(learning_rate=0.1),
-          metrics=['accuracy']
-        )
-
-        BATCH_SIZE = 64
-
-        t_input_ids, t_attention_mask = zip(*trn_x)
-        v_input_ids, v_attention_mask = zip(*val_x)
-
-        trndata = {
-          'attention_mask': tf.convert_to_tensor(t_attention_mask),
-          'input_ids': tf.convert_to_tensor(t_input_ids)
-        }
-
-        evaldata = {
-          'attention_mask': tf.convert_to_tensor(v_attention_mask),
-          'input_ids': tf.convert_to_tensor(v_input_ids)
-        }
-
-
-        X = tf.data.Dataset.from_tensor_slices((
-          (trndata),  # Convert BatchEncoding instance to dictionary
-          trn_y
-        )).batch(BATCH_SIZE).prefetch(1)
-
-        V = tf.data.Dataset.from_tensor_slices((
-          (evaldata),  # Convert BatchEncoding instance to dictionary
-          val_y
-        )).batch(BATCH_SIZE).prefetch(1)
-
-
-        model.fit(
-          x=X,    # dictionary 
-          # y=Y,
-          y=None,
-          epochs=10,
-          batch_size=64, 
-        )
-        xpred = model.predict(V,batch_size=64)
-        pred = np.argmax(xpred, axis=-1)
-        pred_proba = xpred[:, 1]
-
-        print(classification_report(val_y, pred))
-
-        return pred, pred_proba
 
 
 #
@@ -675,8 +357,9 @@ class BertLSTM:
     name="bert_lstm"
     arch_created = False
     
-    def __init__(self, class_weight={0:1, 1:1}):
+    def __init__(self, class_weight={0:1, 1:1}, verbose=0):
         self.class_weight = class_weight
+        self.verbose=verbose
     
     def load_bert_base(self):
         config = DistilBertConfig()
@@ -727,11 +410,9 @@ class BertLSTM:
         tf.keras.backend.clear_session()
 
         if not self.arch_created: 
-            print('creating bert layers')
             self.build_model()
             self.arch_created = True
 
-        print("create head")
         model = tf.keras.models.Model(inputs=self.base.inputs, outputs=self.head(self.base(self.base.inputs)), name="bert")
 
         model.compile(
@@ -775,14 +456,14 @@ class BertLSTM:
           y=None,
           epochs=1,
           batch_size=64, 
-          verbose=2
+          verbose=self.verbose
         )
         xpred = model.predict(V,batch_size=64)
         pred = np.argmax(xpred, axis=-1)
         pred_proba = xpred[:, 1]
 
-        print(classification_report(val_y, pred))
-    
+        if self.verbose > 0:
+            print(classification_report(val_y, pred))
     
         return pred, pred_proba
 
@@ -805,27 +486,12 @@ class BertLSTM:
         pred = np.argmax(xpred, axis=-1)
         pred_proba = xpred[:, 1]
 
-        print(classification_report(val_y, pred))
+        if self.verbose > 0:
+            print(classification_report(val_y, pred))
 
         return pred, pred_proba
     
-    
-    def save(self, dataset_name):
-        deducer = PathDeducer()
-        deducer.setpaths(dataset_name)
-        self.head.save(deducer.modelspath+self.name+"_head")
-        print("saved as ", deducer.modelspath+self.name+"_head")
-        
-            
-    def load(self,dataset_name):
-        deducer = PathDeducer()
-        deducer.setpaths(dataset_name)
-        print("read from ", deducer.modelspath+self.name+"_head")
-        self.base = self.load_bert_base()
-        self.head=keras.models.load_model(deducer.modelspath+self.name+"_head")
-        self.model = tf.keras.models.Model(inputs=self.base.inputs, 
-                                           outputs=self.head(self.base(self.base.inputs)), name="bert")
-        
+          
 ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 #
 
@@ -845,11 +511,12 @@ from sklearn.metrics import classification_report
 class BertHead:
     name = "bert_head"
     
-    def __init__(self, class_weight={0:1, 1:5}, lr = 0.001, epochs=5,batch_size=1024):
+    def __init__(self, class_weight={0:1, 1:5}, lr = 0.001, epochs=5,batch_size=1024,verbose=0):
         self.class_weight = class_weight
         self.lr = lr
         self.epochs = epochs
         self.batch_size=batch_size
+        self.verbose=verbose
     
     def predict(self,trn_x, trn_y, val_x, val_y): 
         tf.keras.backend.clear_session()
@@ -879,26 +546,30 @@ class BertHead:
                       loss=tf.keras.losses.SparseCategoricalCrossentropy(),
                       metrics=[tf.keras.metrics.SparseCategoricalAccuracy()])
 
-        print(trn_x.shape, trn_y.shape,self.class_weight)
+
+        if self.verbose > 0:
+            print(trn_x.shape, trn_y.shape,self.class_weight)
         
         
 
         mycnn.fit(trn_x, trn_y, epochs=self.epochs, 
-                  batch_size=self.batch_size, verbose=2, class_weight=self.class_weight)
+                  batch_size=self.batch_size, verbose=self.verbose, class_weight=self.class_weight)
 
         self.model = mycnn
-#         prob = mycnn.predict(val_x, batch_size=64, verbose=0)
-#         pred = [1 if y > 0.5 else 0 for y in prob]
 
-        pred, prob = self.forward(trn_x)        
-        print(classification_report(trn_y, pred))
-        print(confusion_matrix(trn_y, pred))
-        
-        print("----")
+        pred, prob = self.forward(trn_x)       
 
-        pred, prob = self.forward(val_x)        
-        print(classification_report(val_y, pred))
-        print(confusion_matrix(val_y, pred))
+        if self.verbose > 0: 
+            print(classification_report(trn_y, pred))
+            print(confusion_matrix(trn_y, pred))
+            
+            print("----")
+
+        pred, prob = self.forward(val_x)    
+
+        if self.verbose > 0:    
+            print(classification_report(val_y, pred))
+            print(confusion_matrix(val_y, pred))
 
         return pred, prob
     
@@ -909,15 +580,3 @@ class BertHead:
         prob = mout[:, 1]
         return pred, prob
  
-    
-    def save(self, dataset_name):
-        deducer = PathDeducer()
-        deducer.setpaths(dataset_name)
-        self.model.save(deducer.modelspath+self.name)
-        print("saved as ",deducer.modelspath+self.name)
-        
-    def load(self,dataset_name):
-        deducer = PathDeducer()
-        deducer.setpaths(dataset_name)
-        print("read from ", deducer.modelspath+self.name+"_head")
-        self.model=keras.models.load_model(deducer.modelspath+self.name)
