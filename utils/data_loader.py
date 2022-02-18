@@ -5,7 +5,7 @@ import nltk
 from nltk.corpus import stopwords
 nltk.download('stopwords')
 nltk.download('punkt')
-
+import os.path
 
 from nltk.tokenize import word_tokenize
 from transformers import AutoTokenizer, DistilBertConfig, TFDistilBertModel, DistilBertTokenizerFast
@@ -341,6 +341,12 @@ class DataLoader():
         
     def load_doc2vec(self, mode="avg"):
         filepath = self.path + 'wor2vec_'+mode+'.pickle'
+
+        if not os.path.exists(filepath):
+            print("creating intermediate text representation...")
+            self.make_compact()
+            self.make_doc2vec()
+
         print("opening",filepath)
         with open(filepath, 'rb') as handle:
             x = pickle.load(handle)
