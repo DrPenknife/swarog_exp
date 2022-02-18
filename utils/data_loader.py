@@ -450,8 +450,8 @@ class DataLoader():
         filepath = self.path + name
         if not os.path.exists(filepath):
             print("creating intermediate text representation...")
-            dl.tokenize_with_distilbert()
-            dl.dump_bert_out()
+            self.tokenize_with_distilbert()
+            self.dump_bert_out()
 
         with open(self.path + name, 'rb') as handle:
             print('  opened',self.path + name)
