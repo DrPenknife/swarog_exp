@@ -325,7 +325,7 @@ class DataLoader():
             from pandasql import sqldf
             print("load",self.path + "xfact_train_en.csv")
             dsfile = pd.read_csv(self.path + "xfact_train_en.csv",sep=",")
-            real = sqldf("""select text, label from dsfile where label in ('true','half true','mostly true') """, locals())
+            real = sqldf("""select text, label from dsfile where label in ('true','mostly true') """, locals())
             fake = sqldf("""select text, label from dsfile where label in ('false','mostly false') """, locals())
             print("X-Fact LABELS:\n Fake=",fake.shape[0], " True=", real.shape[0])
             return fake, real
