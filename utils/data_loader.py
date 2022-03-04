@@ -330,6 +330,17 @@ class DataLoader():
             print("X-Fact LABELS:\n Fake=",fake.shape[0], " True=", real.shape[0])
             return fake, real
 
+        if self.datasetname == "qprop":
+            # ! cd /content/drive/MyDrive/swarog/datasets/6pack/qprop && wget "https://zenodo.org/record/3271522/files/proppy_1.0.train.tsv?download=1" -O proppy.tsv
+            from pandasql import sqldf
+            print("load",self.path + "proppy.tsv")
+            dsfile = pd.read_csv(self.path + "proppy.tsv",sep="\t")
+            dsfile.columns = ["text", "location", "tone", "date", "id", "puburl", "mbfc", "arturl", "url mbfcfl", "url2mbfc", "srcname", "mbfcnotes", "mbfcbias", "srcurl", "label"]
+            real = sqldf("""select text, label from dsfile where label < 0 """, locals())
+            fake = sqldf("""select text, label from dsfile where label > 0 """, locals())
+            print("Q-Proppy LABELS:\n Fake=",fake.shape[0], " True=", real.shape[0])
+            return fake, real
+
     def load_raw_txt(self):
         fake, good = self.read()    
         tn = good['text'].tolist()
