@@ -133,10 +133,18 @@ class DataLoader():
             self.modelspath2 = f'c:/Users/demo/Desktop/sciwork/data/swarog/models/'
         
         elif environment == "mypc2":
-            print('using local')
+            print('using mypc2')
             self.path = f'/media/rkozik/0C129CFC129CEBC8/data/swarog/datasets/{self.datasetname}/'
             self.modelspath=f"/media/rkozik/0C129CFC129CEBC8/data/swarog/models/{self.datasetname}/"
             self.modelspath2=f"/media/rkozik/0C129CFC129CEBC8/data/swarog/models/"
+
+        elif environment == "lenovo":
+            print('using yoga')
+
+            self.path = f'/c/Users/User/Desktop/sciwork/data/swarog/datasets/{self.datasetname}/'
+            self.modelspath=f"/c/Users/User/Desktop/sciwork/data/swarog/models/{self.datasetname}/"
+            self.modelspath2=f"/c/Users/User/Desktop/sciwork/data/swarog/models/"
+
 
         print(self.path)
         print(self.modelspath)
