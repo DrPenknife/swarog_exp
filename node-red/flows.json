@@ -1,0 +1,992 @@
+[
+    {
+        "id": "0c565d6f5174dae4",
+        "type": "tab",
+        "label": "RME-front",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "6baf9fd898f05ac9",
+        "type": "template",
+        "z": "0c565d6f5174dae4",
+        "name": "",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "<!DOCTYPE html>\n<html>\n  <!--\n    WARNING! Make sure that you match all Quasar related\n    tags to the same version! (Below it's \"@1.12.13\")\n  -->\n\n  <head>\n    <link href=\"https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons\" rel=\"stylesheet\" type=\"text/css\">\n    <link href=\"https://cdn.jsdelivr.net/npm/animate.css@^4.0.0/animate.min.css\" rel=\"stylesheet\" type=\"text/css\">\n    <link href=\"https://cdn.jsdelivr.net/npm/quasar@1.12.13/dist/quasar.min.css\" rel=\"stylesheet\" type=\"text/css\">\n\n    <link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet@1.6.0/dist/leaflet.css\"\n      integrity=\"sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==\"\n      crossorigin=\"\"/>\n\n    <script src=\"https://unpkg.com/leaflet@1.6.0/dist/leaflet.js\"\n      integrity=\"sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew==\"\n      crossorigin=\"\"></script>\n      \n    <script src=\"https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js\"></script>\n \n    <style>\n     html, body {\n        height: 100%;\n        width: 100%;\n    },\n\n    pre {outline: 1px solid #ccc; padding: 5px; margin: 5px; }\n    .string { color: green; }\n    .number { color: darkorange; }\n    .boolean { color: blue; }\n    .null { color: magenta; }\n    .key { color: red; }\n\n    </style>\n \n  </head>\n\n\n\n  <body>\n\n    <div id=\"q-app\">\n      <mainlayout></mainlayout>\n    </div>\n\n    <!-- Add the following at the end of your body tag -->\n    \n    \n    <script src=\"https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js\"></script>\n\n\n    <script src=\"https://cdn.jsdelivr.net/npm/vue@^2.0.0/dist/vue.js\"></script>\n    <script src=\"https://cdn.jsdelivr.net/npm/quasar@1.12.13/dist/quasar.umd.js\"></script>\n\n  \n    <script>\n\n      {{{payload}}}\n\n\n      /*\n        Example kicking off the UI. Obviously, adapt this to your specific needs.\n        Assumes you have a <div id=\"q-app\"></div> in your <body> above\n       */\n      new Vue({\n        el: '#q-app',\n        data: function () {\n          return {\n            msg:\"test message\"\n          }\n        },\n        methods: {},\n        // ...etc\n      })\n    </script>\n  </body>\n</html>\n\n\n\n",
+        "output": "str",
+        "x": 660,
+        "y": 140,
+        "wires": [
+            [
+                "ab404bf39e68f127"
+            ]
+        ]
+    },
+    {
+        "id": "6242375e8c8c34ae",
+        "type": "http in",
+        "z": "0c565d6f5174dae4",
+        "name": "",
+        "url": "/swarog",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 190,
+        "y": 140,
+        "wires": [
+            [
+                "4e0ffa70760de38c"
+            ]
+        ]
+    },
+    {
+        "id": "ab404bf39e68f127",
+        "type": "http response",
+        "z": "0c565d6f5174dae4",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 830,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "81980bed683c9c29",
+        "type": "template",
+        "z": "0c565d6f5174dae4",
+        "name": "",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "plain",
+        "template": "<q-layout view=\"hHh lpR fFf\" class=\"bg-white\" >\n    <q-header elevated class=\"bg-deep-purple-14 text-white\">\n      <q-toolbar>\n        <q-btn\n          flat\n          dense\n          round\n          @click=\"$refs.drawer.toggle()\"\n          aria-label=\"Menu\"\n          icon=\"menu\"\n        >\n        </q-btn>\n        <q-toolbar-title>\n          <div v-if=\"$q.screen.gt.xs\" style=\"float:left\">\n           <!-- <img src=\"/rme/logo\" style=\"width:90%; margin-top:10px\"> </img>-->\n          </div>\n          <div> SWAROG </div>\n        </q-toolbar-title>\n      </q-toolbar>\n    </q-header> \n    <q-drawer\n      ref=\"drawer\"\n      bordered\n      :width=\"210\"\n      content-class=\"bg-grey-2\"\n    >\n      <cybermenu></cybermenu>\n    </q-drawer>\n    <q-page-container>\n      <cyberhome> </cyberhome>\n    </q-page-container> \n  </q-layout>\n\n<script>\n\ndata: function(){\n    return {\n      page: \"cyberhome\",\n      title: \"Soft Target Protection\"\n    }\n},\n\nmounted: function(){\n  //this.$refs.drawer.toggle()\n  this.$root.$on('optionselect', this.optionselect)\n},\n\nupdated: function(){\n},\n\ndestroyed: function() {\n  \n},\n\n\nmethods: {\n  optionselect: function(x){\n    if(!x.page)return;\n    this.page=x.page\n  }\n}\n\n</script>",
+        "output": "str",
+        "x": 340,
+        "y": 320,
+        "wires": [
+            [
+                "f9720ba4b0f5a6dc"
+            ]
+        ]
+    },
+    {
+        "id": "8fd2f6af1125d409",
+        "type": "template",
+        "z": "0c565d6f5174dae4",
+        "name": "",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "plain",
+        "template": "<div class=\"q-pa-md q-gutter-md\" v-if=\"!loading\">\n  <datasources v-if=\"cyberpage=='m11'\"></datasources>\n  <parsers v-if=\"cyberpage=='m12'\"></parsers>\n  \n  <dashboard v-if=\"cyberpage=='m21'\"></dashboard>\n  <agents v-if=\"cyberpage=='m22'\"></agents>\n  <playbooks v-if=\"cyberpage=='m24'\"></playbooks>\n  <buildpatterns v-if=\"cyberpage=='m23'\"></buildpatterns>\n  <historicaldata v-if=\"cyberpage=='m31'\"></historicaldata>\n  <ruleengine v-if=\"cyberpage=='m32'\"></ruleengine>\n  <deployments v-if=\"cyberpage=='m33'\"></deployments>\n  <solrsearch v-if=\"cyberpage=='m34'\"></solrsearch>\n  <scenariodriver v-if=\"cyberpage=='m41'\"></scenariodriver>\n  \n</div>\n\n<script>\n\nmounted: function(){\n  this.$root.$on('cyberPage', this.cyberPage)\n},\n\n\nmethods: {\n  cyberPage: function(e){\n    this.cyberpage = e\n  }\n},\n\ndata: function(){\n  return {\n    loading: false,\n    cyberpage:'m21'\n  }\n}\n\n</script>",
+        "output": "str",
+        "x": 340,
+        "y": 380,
+        "wires": [
+            [
+                "7358cc0d2e39d482"
+            ]
+        ]
+    },
+    {
+        "id": "8fd78b666ee54d97",
+        "type": "template",
+        "z": "0c565d6f5174dae4",
+        "name": "",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "plain",
+        "template": "<q-list>\n  <!-- <q-item clickable @click=\"emit('cyberPage','m11')\">\n      <q-item-section avatar>\n        <q-icon name=\"input\">\n        </q-icon>\n      </q-item-section>\n      <q-item-section>\n        <q-item-label>Event Sources</q-item-label>\n        <q-item-label caption>Management</q-item-label>\n      </q-item-section>\n  </q-item> -->\n  \n  <q-item-label header class=\"text-purple-6  text-weight-bold\">Analysis</q-item-label>\n  <q-item clickable @click=\"emit('cyberPage','m21')\" :active=\"this.selected=='m21'\">\n      <q-item-section avatar>\n        <q-icon name=\"beenhere\">\n        </q-icon>\n      </q-item-section>\n      <q-item-section>\n        <q-item-label>New</q-item-label>\n        <q-item-label caption>Analysis</q-item-label>\n      </q-item-section>\n  </q-item>\n \n  <q-item clickable @click=\"emit('cyberPage','m24')\" :active=\"this.selected=='m24'\">\n    <q-item-section avatar>\n      <q-icon name=\"play_circle_outline\">\n      </q-icon>\n    </q-item-section>\n    <q-item-section>\n      <q-item-label>Historical</q-item-label>\n      <q-item-label caption>Analyses</q-item-label>\n    </q-item-section>\n  </q-item>\n  \n</q-list>\n\n<script>\nmounted: function(){\n  this.$root.$on('cyberPage_change', this.cyberPage)\n},\n\n\nmethods:{\n  emit: function(ename,evalue){\n    this.selected = evalue\n    this.$root.$emit(ename, evalue)\n  },\n  logout: function(){\n    axios.get(\"/oauth2/logout\")\n    .then(r=>{\n      console.log(\"log out...\")\n      window.location.href=\"https://sso.ensuresec.eu/oauth2/logout?client_id=b26df786-d058-4244-ab44-c986362918aa\"\n    })\n    .catch(r=>{\n      window.location.href=\"https://sso.ensuresec.eu/oauth2/logout?client_id=b26df786-d058-4244-ab44-c986362918aa\"\n    })\n  },\n  cyberPage: function(e){\n    this.selected = e\n    this.$root.$emit('cyberPage', e)\n  }\n},\n\n\ndata:function(){\n  return {\n    selected:\"m21\"\n  }\n}\n\n\n</script>",
+        "output": "str",
+        "x": 340,
+        "y": 440,
+        "wires": [
+            [
+                "32c929f56faacdf2"
+            ]
+        ]
+    },
+    {
+        "id": "29bdacaca4b2fa6e",
+        "type": "template",
+        "z": "0c565d6f5174dae4",
+        "name": "",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "plain",
+        "template": "    <div class=\"q-pa-md\" style=\"width:100%\" >\n       \n        <q-spinner-gears class=\"fixed-center\" v-if=\"loading\" size=\"50px\" color=\"deep-purple-12\">\n        </q-spinner-gears>\n\n        <q-card class=\"my-card\"  v-if=\"!loading\">\n        <q-card-section>\n\n     \n        <q-form\n            @submit=\"send_to_analysis\"\n            @reset=\"\"\n            class=\"q-gutter-md\" \n        >\n            \n            <q-input\n                filled\n                v-model=\"newsource.name\"\n                label=\"Title\"\n                hint=\"Provide short name for this article\" \n            ></q-input>\n\n   \n\n            <q-input\n              filled\n                  v-model=\"newsource.details\"\n                  label=\"Body\"\n                  type=\"textarea\"\n                  hint=\"Aticle body\" \n            ></q-input>\n  \n    \n    \n            <div>\n               \n                <q-btn label=\"Analyse content\" type=\"submit\" \n                color=\"deep-purple-12\" > </q-btn>\n                \n            </div>\n        </q-form>\n\n\n     \n      </q-card-section>\n    </q-card>         \n\n    </div>\n<script>\n    mounted: function () {\n        this.$q.notify.setDefaults({\n            timeout: 500,\n            textColor: 'white',\n            actions: [{ icon: 'close', color: 'white' }]\n        })\n    },\n    \n    methods: {\n        send_to_analysis: function(){\n            this.loading = true\n            setTimeout((x)=>{\n            axios.post(\"/swarog/api/analysis\", {\n                text: this.newsource.details,\n                title: this.newsource.name\n            })\n            .then(x=>{\n                this.loading = false\n                this.$root.$emit(\"cyberPage_change\", \"m24\")\n            })\n            }, 1);\n        }\n    },\n    \n    data: function () {\n        return {\n            loading: false,\n            active:'',\n            newsource:{\n                name: '',\n                src: '',\n                dst: '',\n                type:'playbook',\n                details: '',\n                template: ''\n            }\n        }\n    }\n</script>",
+        "output": "str",
+        "x": 880,
+        "y": 360,
+        "wires": [
+            [
+                "8ee3e0a9da05ad17"
+            ]
+        ]
+    },
+    {
+        "id": "ddc1ac0bda4ca679",
+        "type": "template",
+        "z": "0c565d6f5174dae4",
+        "name": "",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "plain",
+        "template": "\n    \n    <div class=\"q-pa-md\" style=\"width:100%\" >\n        \n    <q-dialog v-model=\"dialog\"  full-width style=\"height:60%\">\n      <q-card>\n        <q-card-section>\n          <q-item-label class=\"text-h4\" >{{item.title}}</q-item-label>\n          <q-item-label caption>Analysed at {{item.time}}</q-item-label>\n        </q-card-section>\n\n\n        <q-card-section class=\"q-pt-none\">\n            <q-item-label class=\"text-h6\" >Analysed text</q-item-label>\n            <q-item-label > {{item.body}} </q-item-label>\n        </q-card-section>\n\n        <q-card-section>\n          <q-item-label class=\"text-h6\" >Classification</q-item-label>\n          <q-item-label > \n\n            {{item.cls.result?\"Fake News\" : \"True News\"}} \n\n            <q-knob\n            show-value\n            font-size=\"12px\"\n            v-model=\"item.cls.confidence\"\n            size=\"50px\"\n            :thickness=\"0.22\"\n            color=\"deep-purple-12\"\n            track-color=\"grey-3\"\n            class=\"q-ma-md\"\n            >\n            {{item.cls.confidence_fixed}}%\n            </q-knob>    \n          </q-item-label>\n        </q-card-section>\n\n        <q-card-section>\n          <q-item-label class=\"text-h6\" >Text category</q-item-label>\n          <q-item-label> {{[\n            \"COVID, Health, Medicine\",\n            \"COVID, Health\",\n            \"Health\",\n            \"News, Opinions\",\n            \"Politics\",\n            \"Politics\"\n            ][item.cls.domain]}} </q-item-label>\n        </q-card-section>\n\n        <q-card-section>\n            <q-item-label class=\"text-h6\" >Similar documents</q-item-label>\n            \n            <q-list bordered>\n                <q-item v-for=\"doc,id in item.cls.similar_articles\">\n                    <q-item-section>\n                        <q-item-label overline>{{doc.label?\"Fake News\" : \"True News\"}}</q-item-label>\n                        <q-item-label>Similartiy: \n                            <q-badge v-if=\"doc.distance < 0.6\" outline color=\"red\" label=\"HIGH\" />\n                            <q-badge v-else-if=\"doc.distance < 0.9\" outline color=\"yellow\" label=\"MEDIUM\" />\n                            <q-badge v-else outline color=\"blue\" label=\"LOW\" />\n                        </q-item-label>\n                        <q-item-label caption>\n                            {{doc.text}}\n                        </q-item-label>\n                    </q-item-section>\n                </q-item>\n\n            </q-list>\n        </q-card-section>    \n      \n        <q-card-actions align=\"right\">\n          <q-btn flat label=\"Close\" color=\"primary\" v-close-popup />\n        </q-card-actions>\n      </q-card>\n    </q-dialog>\n\n        <q-spinner-gears size=\"50px\" class=\"fixed-center\" v-if=\"isloading\" color=\"deep-purple-12\">\n        </q-spinner-gears>\n\n        <q-markup-table bordered wrap-cells  v-if=\"tab=='list' && !isloading\">\n\n        <thead>\n            <tr >\n                <th class=\"text-left text-purple-6\">Time</th>\n                <th class=\"text-left text-purple-6\" style=\"width:10%\">Title</th>\n                <th class=\"text-left text-purple-6\" style=\"width:60%\">Body</th>\n                <th class=\"text-left text-purple-6\" >Classification</th>\n                <th class=\"text-middle text-purple-6\" >Confidence</th>\n                <th class=\"text-left text-purple-6\" > </th>\n            </tr>\n        </thead>\n    \n        <tbody>\n\n         \n\n            <tr v-if=\"!isloading && list.items.length===0\"> \n                <td colspan=\"6\" class=\"text-center\">\n                No data...\n                </td>\n            </tr>\n\n            <tr v-for=\"item,id in list.items\">\n                <td class=\"text-left\">{{item.time}}</td>\n                <td class=\"text-left\">{{item.title}}</td>\n                <td class=\"text-left\">{{item.bodyshort}}</td>\n                <td class=\"text-left\">\n                    <q-badge v-if=\"item.cls.result\" rounded color=\"red\" label=\"FAKE\"></q-badge>\n                    <q-badge v-else rounded color=\"green\" label=\"TRUE\" ></q-badge>\n                </td>\n                <td>\n                     <q-knob\n                    show-value\n                    font-size=\"12px\"\n                    v-model=\"item.cls.confidence\"\n                    size=\"50px\"\n                    :thickness=\"0.22\"\n                    color=\"deep-purple-12\"\n                    track-color=\"grey-3\"\n                    class=\"q-ma-md\"\n                    >\n                    {{item.cls.confidence_fixed}}%\n                    </q-knob>    \n                </td>\n                <td><q-btn flat label=\"Details\" color=\"deep-purple-12\" @click=\"onclick(id)\"> </q-btn>  </td>\n            </tr>\n\n        </tbody>\n        </q-markup-table>\n\n    </div>\n<script>\n    mounted: function () {\n        this.$q.notify.setDefaults({\n            timeout: 500,\n            textColor: 'white',\n            actions: [{ icon: 'close', color: 'white' }]\n        })\n    \n        this.isloading = true\n       \n        axios.get(\"/swarog/api/history\").then(x=>{\n            this.list.items = x.data\n            this.isloading = false\n            this.list.item = this.list.items.map(x=>{\n                if(x.body.length > 300) x.bodyshort = x.body.substr(0,300) + \" [...]\"\n                else x.bodyshort = x.body\n                x.cls.confidence = (100*x.cls.result_proba[x.cls.result])\n                x.cls.confidence_fixed = x.cls.confidence.toFixed()\n                return x\n            })\n        })\n        \n    },\n    \n    methods: { \n        onclick: function(id){\n            this.dialog = !this.dialog\n            this.item = this.list.items[id]\n        }\n    },\n    \n    data: function () {\n        return {\n            tab:'list',\n            dialog:false,\n            isloading:false,\n            item:{\n                title:'',\n                time:'',\n                body:'',\n                cls:{result:0, domain:0}\n            },\n            list:{\n                items:[]\n            }\n        }\n    }\n</script>",
+        "output": "str",
+        "x": 880,
+        "y": 420,
+        "wires": [
+            [
+                "6be30e5b27da5154"
+            ]
+        ]
+    },
+    {
+        "id": "289e7f37a24a990b",
+        "type": "template",
+        "z": "0c565d6f5174dae4",
+        "name": "",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "{{{payload}}}\n\n// ------\n\nfunction common_calls(collection){\n    return {\n        getId(id){\n            return axios.get(`/rme/api/sql/${collection}/${id}`)\n        },\n        get(){\n            return axios.get(`/rme/api/sql/${collection}`)\n        },\n        add(item){\n            return axios.post(`/rme/api/sql/${collection}`,item)\n        },\n        delete(id){\n            return axios.delete(`/rme/api/sql/${collection}/${id}`)\n        },\n        update(item, id){\n            return axios.put(`/rme/api/sql/${collection}/${id}`, item)\n        },\n        getType(type){\n            return axios.get(`/rme/api/sql/${collection}?type=${type}`)\n        },\n        getField(field, value){\n            return axios.get(`/rme/api/sql/${collection}?${field}=${value}`)\n        },\n        deleteAll(){\n            return axios.delete(`/rme/api/sql/${collection}`)\n        },\n    }\n}\n\n\nvar AgentesREST = common_calls(\"agents\")\nvar SourcesREST = common_calls(\"sources\")\nvar LogREST = common_calls(\"logs\")\n ",
+        "output": "str",
+        "x": 520,
+        "y": 140,
+        "wires": [
+            [
+                "6baf9fd898f05ac9"
+            ]
+        ]
+    },
+    {
+        "id": "4e0ffa70760de38c",
+        "type": "file in",
+        "z": "0c565d6f5174dae4",
+        "name": "",
+        "filename": "modules",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "none",
+        "allProps": false,
+        "x": 360,
+        "y": 140,
+        "wires": [
+            [
+                "289e7f37a24a990b"
+            ]
+        ]
+    },
+    {
+        "id": "5c2440253870430f",
+        "type": "file",
+        "z": "0c565d6f5174dae4",
+        "name": "",
+        "filename": "modules",
+        "appendNewline": true,
+        "createDir": false,
+        "overwriteFile": "true",
+        "encoding": "none",
+        "x": 300,
+        "y": 240,
+        "wires": [
+            [
+                "e03cd4f8a2d06b41"
+            ]
+        ]
+    },
+    {
+        "id": "1f1826fc6b1969fe",
+        "type": "inject",
+        "z": "0c565d6f5174dae4",
+        "name": "inject",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "0.2",
+        "topic": "",
+        "payload": "// begin",
+        "payloadType": "str",
+        "x": 110,
+        "y": 240,
+        "wires": [
+            [
+                "5c2440253870430f"
+            ]
+        ]
+    },
+    {
+        "id": "e03cd4f8a2d06b41",
+        "type": "link out",
+        "z": "0c565d6f5174dae4",
+        "name": "onfcreated",
+        "mode": "link",
+        "links": [
+            "3117b01d241ed28e",
+            "3964c1f504146724",
+            "fac2d88e4559209d",
+            "5ce4e5822c4f1259",
+            "d461dd8ca814ca42",
+            "9e5ba97a225e1e35",
+            "1c7ef4625111fd14",
+            "922ab7c4fac911d3",
+            "76c9b06bca226d46",
+            "3e12b36b1ad2b131",
+            "602dd890b98088f1",
+            "a57f99e2c2040747",
+            "e7efc2867792d7ed",
+            "560f21bce29810fc",
+            "ee400c5447d23a81",
+            "048cce5eba1afc54",
+            "0a0bb7f2d8604562"
+        ],
+        "x": 465,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "3117b01d241ed28e",
+        "type": "link in",
+        "z": "0c565d6f5174dae4",
+        "name": "",
+        "links": [
+            "e03cd4f8a2d06b41"
+        ],
+        "x": 25,
+        "y": 320,
+        "wires": [
+            [
+                "18e1d3561ea7cedc"
+            ]
+        ]
+    },
+    {
+        "id": "f4b36e8d41af64ad",
+        "type": "file",
+        "z": "0c565d6f5174dae4",
+        "name": "",
+        "filename": "modules",
+        "appendNewline": true,
+        "createDir": false,
+        "overwriteFile": "false",
+        "encoding": "none",
+        "x": 1080,
+        "y": 240,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ccd41ef49e48382b",
+        "type": "link in",
+        "z": "0c565d6f5174dae4",
+        "name": "update-node-file",
+        "links": [
+            "f9720ba4b0f5a6dc",
+            "7358cc0d2e39d482",
+            "32c929f56faacdf2",
+            "a293bf73c862336e",
+            "47317de3a895c1d4",
+            "8ee3e0a9da05ad17",
+            "6be30e5b27da5154",
+            "af49ca362cae3d57",
+            "9d8a0d4dfdf438e4",
+            "5ff02cf4871f40bd",
+            "8ce469bc397633ee",
+            "38145fb9856912a9",
+            "0274a7ef391d7751",
+            "d5ddb04380f05137"
+        ],
+        "x": 595,
+        "y": 240,
+        "wires": [
+            [
+                "0947ea8a85e6489a"
+            ]
+        ]
+    },
+    {
+        "id": "f9720ba4b0f5a6dc",
+        "type": "link out",
+        "z": "0c565d6f5174dae4",
+        "name": "",
+        "mode": "link",
+        "links": [
+            "ccd41ef49e48382b"
+        ],
+        "x": 465,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "7358cc0d2e39d482",
+        "type": "link out",
+        "z": "0c565d6f5174dae4",
+        "name": "",
+        "mode": "link",
+        "links": [
+            "ccd41ef49e48382b"
+        ],
+        "x": 465,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "32c929f56faacdf2",
+        "type": "link out",
+        "z": "0c565d6f5174dae4",
+        "name": "",
+        "mode": "link",
+        "links": [
+            "ccd41ef49e48382b"
+        ],
+        "x": 465,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "8ee3e0a9da05ad17",
+        "type": "link out",
+        "z": "0c565d6f5174dae4",
+        "name": "",
+        "mode": "link",
+        "links": [
+            "ccd41ef49e48382b"
+        ],
+        "x": 1005,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "6be30e5b27da5154",
+        "type": "link out",
+        "z": "0c565d6f5174dae4",
+        "name": "",
+        "mode": "link",
+        "links": [
+            "ccd41ef49e48382b"
+        ],
+        "x": 1005,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "5ce4e5822c4f1259",
+        "type": "link in",
+        "z": "0c565d6f5174dae4",
+        "name": "",
+        "links": [
+            "e03cd4f8a2d06b41"
+        ],
+        "x": 25,
+        "y": 380,
+        "wires": [
+            [
+                "7f8f94948aa68352"
+            ]
+        ]
+    },
+    {
+        "id": "d461dd8ca814ca42",
+        "type": "link in",
+        "z": "0c565d6f5174dae4",
+        "name": "",
+        "links": [
+            "e03cd4f8a2d06b41"
+        ],
+        "x": 25,
+        "y": 440,
+        "wires": [
+            [
+                "e09f4c5b95a0a171"
+            ]
+        ]
+    },
+    {
+        "id": "1c7ef4625111fd14",
+        "type": "link in",
+        "z": "0c565d6f5174dae4",
+        "name": "",
+        "links": [
+            "e03cd4f8a2d06b41"
+        ],
+        "x": 565,
+        "y": 360,
+        "wires": [
+            [
+                "f99100684fe29f0f"
+            ]
+        ]
+    },
+    {
+        "id": "922ab7c4fac911d3",
+        "type": "link in",
+        "z": "0c565d6f5174dae4",
+        "name": "",
+        "links": [
+            "e03cd4f8a2d06b41"
+        ],
+        "x": 565,
+        "y": 420,
+        "wires": [
+            [
+                "a4e24e753ca1feb2"
+            ]
+        ]
+    },
+    {
+        "id": "3e42736fb3fa9cb6",
+        "type": "template",
+        "z": "0c565d6f5174dae4",
+        "name": "",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "// {{{payload.name}}}\nVue.component('{{{payload.name}}}', { template: `{{{payload.template}}}`, {{{payload.script}}} } );\n// end of  {{{payload.name}}}\n/////////////////////////////////////////////////////////////////////////////////////////\n",
+        "output": "str",
+        "x": 920,
+        "y": 240,
+        "wires": [
+            [
+                "f4b36e8d41af64ad"
+            ]
+        ]
+    },
+    {
+        "id": "18e1d3561ea7cedc",
+        "type": "function",
+        "z": "0c565d6f5174dae4",
+        "name": "mainlayout",
+        "func": "msg.node_name = node.name\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 170,
+        "y": 320,
+        "wires": [
+            [
+                "81980bed683c9c29"
+            ]
+        ]
+    },
+    {
+        "id": "0947ea8a85e6489a",
+        "type": "function",
+        "z": "0c565d6f5174dae4",
+        "name": "",
+        "func": "const arr = msg.payload.split(\"<script>\")\nnode.warn(`created ${msg.node_name}`)\nreturn {payload:{\n    name: msg.node_name,\n    template: arr[0],\n    script: arr[1].substring(0, arr[1].lastIndexOf(\"</script>\"))\n}};",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 720,
+        "y": 240,
+        "wires": [
+            [
+                "3e42736fb3fa9cb6"
+            ]
+        ]
+    },
+    {
+        "id": "7f8f94948aa68352",
+        "type": "function",
+        "z": "0c565d6f5174dae4",
+        "name": "cyberhome",
+        "func": "msg.node_name = node.name\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 170,
+        "y": 380,
+        "wires": [
+            [
+                "8fd2f6af1125d409"
+            ]
+        ]
+    },
+    {
+        "id": "e09f4c5b95a0a171",
+        "type": "function",
+        "z": "0c565d6f5174dae4",
+        "name": "cybermenu",
+        "func": "msg.node_name = node.name\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 170,
+        "y": 440,
+        "wires": [
+            [
+                "8fd78b666ee54d97"
+            ]
+        ]
+    },
+    {
+        "id": "f99100684fe29f0f",
+        "type": "function",
+        "z": "0c565d6f5174dae4",
+        "name": "dashboard",
+        "func": "msg.node_name = node.name\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 710,
+        "y": 360,
+        "wires": [
+            [
+                "29bdacaca4b2fa6e"
+            ]
+        ]
+    },
+    {
+        "id": "a4e24e753ca1feb2",
+        "type": "function",
+        "z": "0c565d6f5174dae4",
+        "name": "playbooks",
+        "func": "msg.node_name = node.name\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 700,
+        "y": 420,
+        "wires": [
+            [
+                "ddc1ac0bda4ca679"
+            ]
+        ]
+    },
+    {
+        "id": "65133dd68cd3f712",
+        "type": "http in",
+        "z": "0c565d6f5174dae4",
+        "d": true,
+        "name": "",
+        "url": "/rme/logo",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 190,
+        "y": 40,
+        "wires": [
+            [
+                "6dcd7e5246e68009"
+            ]
+        ]
+    },
+    {
+        "id": "c1de2731cac24efa",
+        "type": "http response",
+        "z": "0c565d6f5174dae4",
+        "name": "",
+        "statusCode": "",
+        "headers": {
+            "content-type": "image/png"
+        },
+        "x": 770,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "6dcd7e5246e68009",
+        "type": "file in",
+        "z": "0c565d6f5174dae4",
+        "name": "",
+        "filename": "/usr/src/node-red/share/starlight_logo.png",
+        "format": "",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "none",
+        "allProps": false,
+        "x": 480,
+        "y": 40,
+        "wires": [
+            [
+                "c1de2731cac24efa"
+            ]
+        ]
+    },
+    {
+        "id": "bd1eca820f6f625f",
+        "type": "http in",
+        "z": "0c565d6f5174dae4",
+        "name": "",
+        "url": "/swarog/api/analysis",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 150,
+        "y": 600,
+        "wires": [
+            [
+                "e6f0b40c0fb99e21",
+                "a3afe9c2117f5c14"
+            ]
+        ]
+    },
+    {
+        "id": "2899d98df671874a",
+        "type": "http response",
+        "z": "0c565d6f5174dae4",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 950,
+        "y": 580,
+        "wires": []
+    },
+    {
+        "id": "e6f0b40c0fb99e21",
+        "type": "debug",
+        "z": "0c565d6f5174dae4",
+        "name": "debug 3",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 380,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "18d8f83ef2233267",
+        "type": "http request",
+        "z": "0c565d6f5174dae4",
+        "name": "",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "http://192.168.56.1:3000/predict",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 570,
+        "y": 580,
+        "wires": [
+            [
+                "d406ce992a22ea88",
+                "4c5f6acdab427021"
+            ]
+        ]
+    },
+    {
+        "id": "d406ce992a22ea88",
+        "type": "debug",
+        "z": "0c565d6f5174dae4",
+        "name": "debug 4",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 780,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "4c5f6acdab427021",
+        "type": "function",
+        "z": "0c565d6f5174dae4",
+        "name": "function 5",
+        "func": "const mloutput = global.get(\"mloutput\") || []\n\nmloutput.push({\n    cls: msg.payload,\n    title:msg._in.title,\n    body: msg._in.text,\n    time: new Date()\n})\n\nglobal.set(\"mloutput\", mloutput) \nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 780,
+        "y": 580,
+        "wires": [
+            [
+                "2899d98df671874a"
+            ]
+        ]
+    },
+    {
+        "id": "958f6bb579cb23df",
+        "type": "http in",
+        "z": "0c565d6f5174dae4",
+        "name": "",
+        "url": "/swarog/api/history",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 180,
+        "y": 720,
+        "wires": [
+            [
+                "f471398d4cbb5acb"
+            ]
+        ]
+    },
+    {
+        "id": "b419b8d76079866d",
+        "type": "http response",
+        "z": "0c565d6f5174dae4",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 510,
+        "y": 720,
+        "wires": []
+    },
+    {
+        "id": "f471398d4cbb5acb",
+        "type": "function",
+        "z": "0c565d6f5174dae4",
+        "name": "function 6",
+        "func": "msg.payload = global.get(\"mloutput\") || []\nreturn msg",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 720,
+        "wires": [
+            [
+                "b419b8d76079866d"
+            ]
+        ]
+    },
+    {
+        "id": "a3afe9c2117f5c14",
+        "type": "function",
+        "z": "0c565d6f5174dae4",
+        "name": "function 7",
+        "func": "msg._in = msg.payload\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 380,
+        "y": 580,
+        "wires": [
+            [
+                "18d8f83ef2233267"
+            ]
+        ]
+    },
+    {
+        "id": "d49b1999e85c7601",
+        "type": "function",
+        "z": "0c565d6f5174dae4",
+        "name": "clear history",
+        "func": "global.set(\"mloutput\", []) \nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 430,
+        "y": 800,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "25e599f035272cfc",
+        "type": "inject",
+        "z": "0c565d6f5174dae4",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 240,
+        "y": 800,
+        "wires": [
+            [
+                "d49b1999e85c7601"
+            ]
+        ]
+    },
+    {
+        "id": "c1759069dee43b6f",
+        "type": "http request",
+        "z": "0c565d6f5174dae4",
+        "name": "",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "http://192.168.56.1:3000/metrics",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 570,
+        "y": 520,
+        "wires": [
+            [
+                "7df67830647ba91d"
+            ]
+        ]
+    },
+    {
+        "id": "935dde75581ff48e",
+        "type": "inject",
+        "z": "0c565d6f5174dae4",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 380,
+        "y": 520,
+        "wires": [
+            [
+                "c1759069dee43b6f"
+            ]
+        ]
+    },
+    {
+        "id": "7df67830647ba91d",
+        "type": "debug",
+        "z": "0c565d6f5174dae4",
+        "name": "debug 5",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 740,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "f9ee67850552f70d",
+        "type": "exec",
+        "z": "0c565d6f5174dae4",
+        "command": "ipconfig",
+        "addpay": "",
+        "append": "",
+        "useSpawn": "false",
+        "timer": "",
+        "winHide": false,
+        "oldrc": false,
+        "name": "",
+        "x": 780,
+        "y": 860,
+        "wires": [
+            [
+                "255b963e2e20071e"
+            ],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "7853adf237544ce3",
+        "type": "inject",
+        "z": "0c565d6f5174dae4",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 700,
+        "y": 760,
+        "wires": [
+            [
+                "f9ee67850552f70d"
+            ]
+        ]
+    },
+    {
+        "id": "255b963e2e20071e",
+        "type": "debug",
+        "z": "0c565d6f5174dae4",
+        "name": "debug 6",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 980,
+        "y": 780,
+        "wires": []
+    }
+]
