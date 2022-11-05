@@ -1,0 +1,210 @@
+
+    
+    <div class="q-pa-md" style="width:100%" >
+        
+
+
+    <q-dialog v-model="dialog"  full-width style="height:60%">
+      <q-card>
+        <q-card-section>
+          <q-item-label class="text-h4" >{{item.title}}</q-item-label>
+          <q-item-label caption>Analysed at {{item.time}}</q-item-label>
+        </q-card-section>
+
+
+        <q-card-section class="q-pt-none">
+            <q-item-label class="text-h6" >Analysed text</q-item-label>
+            <q-item-label > {{item.body}} </q-item-label>
+        </q-card-section>
+
+        <q-card-section>
+          <q-item-label class="text-h6" >Classification</q-item-label>
+          <q-item-label > 
+
+            {{item.cls.result?"Fake News" : "True News"}} 
+
+            <q-knob
+            show-value
+            font-size="12px"
+            v-model="item.cls.confidence"
+            size="50px"
+            :thickness="0.22"
+            color="deep-purple-12"
+            track-color="grey-3"
+            class="q-ma-md"
+            >
+            {{item.cls.confidence_fixed}}%
+            </q-knob>    
+          </q-item-label>
+        </q-card-section>
+
+        <q-card-section>
+          <q-item-label class="text-h6" >Text category</q-item-label>
+          <q-item-label> {{[
+            "COVID, Health, Medicine",
+            "COVID, Health",
+            "Health",
+            "News, Opinions",
+            "Politics",
+            "Politics"
+            ][item.cls.domain]}} </q-item-label>
+        </q-card-section>
+
+        <q-card-section>
+            <q-item-label class="text-h6" >Similar documents</q-item-label>
+            
+            <q-list bordered>
+                <q-item v-for="doc,id in item.cls.similar_articles" clickable v-ripple @click="onclick_related_doc(id)">
+                    <q-item-section>
+                        <q-item-label overline>{{doc.label?"Fake News" : "True News"}}</q-item-label>
+                        <q-item-label>Similartiy: 
+                            <q-badge v-if="doc.distance < 0.6" outline color="red" label="HIGH" />
+                            <q-badge v-else-if="doc.distance < 0.9" outline color="yellow" label="MEDIUM" />
+                            <q-badge v-else outline color="blue" label="LOW" />
+                        </q-item-label>
+                        <q-item-label caption>
+                            {{doc.text.substring(0,1200)}}[...]
+                        </q-item-label>
+                    </q-item-section>
+                </q-item>
+
+            </q-list>
+        </q-card-section>    
+      
+        <q-card-actions align="right">
+          <q-btn flat label="Close" color="primary" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+
+    <q-dialog v-model="related_doc_dialog"  full-width style="height:60%">
+      <q-card>
+        <q-card-section>
+          <q-badge v-if="!related_doc_dialog.label" rounded color="red" label="FAKE"></q-badge>
+          <q-badge v-else rounded color="green" label="TRUE"></q-badge>
+        </q-card-section>
+        <q-card-section  v-html="related_doc_item.text">
+        </q-card-section>
+      </q-card>
+    </q-dialog>
+
+
+
+        <q-spinner-gears size="50px" class="fixed-center" v-if="isloading" color="deep-purple-12">
+        </q-spinner-gears>
+
+        <q-markup-table bordered wrap-cells  v-if="tab=='list' && !isloading">
+
+        <thead>
+            <tr >
+                <th class="text-left text-purple-6">Time</th>
+                <th class="text-left text-purple-6" style="width:10%">Title</th>
+                <th class="text-left text-purple-6" style="width:60%">Body</th>
+                <th class="text-left text-purple-6" >Classification</th>
+                <th class="text-middle text-purple-6" >Confidence</th>
+                <th class="text-left text-purple-6" > </th>
+            </tr>
+        </thead>
+    
+        <tbody>
+
+         
+
+            <tr v-if="!isloading && list.items.length===0"> 
+                <td colspan="6" class="text-center">
+                No data...
+                </td>
+            </tr>
+
+            <tr v-for="item,id in list.items">
+                <td class="text-left">{{item.time_ago}}</td>
+                <td class="text-left">{{item.title}}</td>
+                <td class="text-left">{{item.bodyshort}}</td>
+                <td class="text-left">
+                    <q-badge v-if="item.cls.result" rounded color="red" label="FAKE"></q-badge>
+                    <q-badge v-else rounded color="green" label="TRUE" ></q-badge>
+                </td>
+                <td>
+                     <q-knob
+                    show-value
+                    font-size="12px"
+                    v-model="item.cls.confidence"
+                    size="50px"
+                    :thickness="0.22"
+                    color="deep-purple-12"
+                    track-color="grey-3"
+                    class="q-ma-md"
+                    >
+                    {{item.cls.confidence_fixed}}%
+                    </q-knob>    
+                </td>
+                <td><q-btn flat label="Details" color="deep-purple-12" @click="onclick(id)"> </q-btn>  </td>
+            </tr>
+
+        </tbody>
+        </q-markup-table>
+
+    </div>
+<script>
+    mounted: function () {
+        this.$q.notify.setDefaults({
+            timeout: 500,
+            textColor: 'white',
+            actions: [{ icon: 'close', color: 'white' }]
+        })
+    
+        this.isloading = true
+       
+        axios.get("/swarog/api/history").then(x=>{
+            this.list.items = x.data
+            this.isloading = false
+            this.list.item = this.list.items.map(x=>{
+                if(x.body.length > 300) x.bodyshort = x.body.substr(0,300) + " [...]"
+                else x.bodyshort = x.body
+                x.cls.confidence = (100*x.cls.result_proba[x.cls.result])
+                x.cls.confidence_fixed = x.cls.confidence.toFixed()
+                x.time_ago = moment(x.time).fromNow();
+                return x
+            })
+        })
+        
+    },
+    
+    methods: { 
+        onclick: function(id){
+            this.dialog = !this.dialog
+            this.item = this.list.items[id]
+        },
+
+        onclick_related_doc: function(id){
+            this.related_doc_dialog = !this.related_doc_dialog
+            this.related_doc_item = this.item.cls.similar_articles[id]
+            const word = "e-mails"
+            const regex = new RegExp(word, 'gi');
+            const newText = this.related_doc_item.text.replace(regex, `<span class="text-bold bg-red-2">${word}</span>`);
+            this.related_doc_item.text = newText
+        }
+    },
+    
+    data: function () {
+        return {
+            tab:'list',
+            dialog:false,
+            related_doc_dialog:false,
+            isloading:false,
+            related_doc_item:{
+                text:""
+            },
+            item:{
+                title:'',
+                time:'',
+                body:'',
+                cls:{result:0, domain:0}
+            },
+            list:{
+                items:[]
+            }
+        }
+    }
+</script>
