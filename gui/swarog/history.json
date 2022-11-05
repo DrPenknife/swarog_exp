@@ -217,5 +217,78 @@
             "title": "PART of FAKE",
             "body": "While on the campaign trail for Hillary Clinton in Ohio, Vice President Joe Biden was talking about the dangers of a Donald Trump presidency and what that would do to the average citizen.However, while speaking, a protester started shouting at Biden about the Iraq War. And while he could have simply ignored this protester or let the crowd drown him out with chants of Hillary! Biden instead hushed the crowd to field his question.After Biden answered the question, the protester, still upset, let the vice president know that his friend had died. ",
             "time": "2022-11-05T13:58:12.706775"
+      },
+      {
+            "cls": {
+                  "result": 1,
+                  "result_proba": [
+                        0.14662110157327424,
+                        0.8533788984267258
+                  ],
+                  "domain": 0,
+                  "domain_proba": [
+                        0.9880563276667911,
+                        0.011937742961311582,
+                        1.0718750736741712e-09,
+                        2.1816230887037796e-08,
+                        3.7033158208845855e-08,
+                        5.869450632984887e-06
+                  ],
+                  "similar_articles": [
+                        {
+                              "text": "The coronavirus is an amplified bacterium and is related to 5G.",
+                              "label": 1,
+                              "distance": 0.391436904668808
+                        },
+                        {
+                              "text": "The coronavirus is an exosome related with 5G.",
+                              "label": 1,
+                              "distance": 0.391436904668808
+                        },
+                        {
+                              "text": "Coronavirus is caused by 5G.",
+                              "label": 1,
+                              "distance": 0.4384332597255707
+                        },
+                        {
+                              "text": "Coronavirus is fake or a made-up ploy by 5G.",
+                              "label": 1,
+                              "distance": 0.4732588529586792
+                        },
+                        {
+                              "text": "5G spreads the new coronavirus.",
+                              "label": 1,
+                              "distance": 0.48876142501831055
+                        },
+                        {
+                              "text": "5G is accelerating the spread of the new coronavirus.",
+                              "label": 1,
+                              "distance": 0.48876142501831055
+                        },
+                        {
+                              "text": "Countries without 5G are free from coronavirus",
+                              "label": 1,
+                              "distance": 0.512805700302124
+                        },
+                        {
+                              "text": "Coronavirus cases linked to 5G rollout.",
+                              "label": 1,
+                              "distance": 0.5514768362045288
+                        },
+                        {
+                              "text": "5G technology is the cause of the coronavirus.",
+                              "label": 1,
+                              "distance": 0.5565465688705444
+                        },
+                        {
+                              "text": "The coronavirus is caused by 5G technology.",
+                              "label": 1,
+                              "distance": 0.5828595757484436
+                        }
+                  ]
+            },
+            "title": "fake my",
+            "body": "5G activated coronavirus",
+            "time": "2022-11-05T16:07:45.805809"
       }
 ]
