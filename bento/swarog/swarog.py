@@ -25,6 +25,8 @@ import pickle5 as pickle
 import sqlite3
 from lematizer import LemmaTokenizer
 
+nltk.download('omw-1.4')
+
 class MyCustomUnpickler(pickle.Unpickler):
     def find_class(self, module, name):
         if module == "__main__":
