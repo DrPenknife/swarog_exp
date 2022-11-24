@@ -68,13 +68,14 @@ def get_related_articles(txt):
     conn = sqlite3.connect('../../pickles/swarog_data/swarog.sqlite')
     c = conn.cursor()
     for index,_id in enumerate(hits[0]):
-        c.execute("""select raw.body,raw.label 
+        c.execute("""select raw.body,raw.label, raw.dataset 
                 from raw join tfidf on (tfidf.gid=raw.rowid) 
                 where tfidf.rowid=?""",[_id])
         r=c.fetchall()
         resp.append({
             'text':r[0][0],
             'label':r[0][1],
+            'dataset':r[0][2],
             'distance':hits[1][index]})
     conn.close()
     return resp
@@ -129,7 +130,7 @@ def predict(input_series: np.ndarray) -> np.ndarray:
     similar_articles = get_related_articles(input_series['text'])
     
     return {'result': result, 
-            'result_proba': result_proba, 
+            'result_proba': result_proba,
             'domain': category, 
             'domain_proba' : category_proba,
             'similar_articles': similar_articles

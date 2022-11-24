@@ -83,9 +83,11 @@
         <q-card-section>
           <q-badge v-if="!related_doc_dialog.label" rounded color="red" label="FAKE"></q-badge>
           <q-badge v-else rounded color="green" label="TRUE"></q-badge>
+
         </q-card-section>
         <q-card-section  v-html="related_doc_item.text_higlighted">
         </q-card-section>
+        <q-item-label v-if="related_doc_dialog.label"> Source:{{related_doc_item.dataset}} </q-item-label>
       </q-card>
     </q-dialog>
 
