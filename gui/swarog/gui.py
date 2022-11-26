@@ -91,7 +91,7 @@ async def analysis(doc: TxtDocument):
     
     pred = model.predict(doc.text)
     
-    print(pred)
+    #print(pred)
     
     db.append({
           'cls': pred,

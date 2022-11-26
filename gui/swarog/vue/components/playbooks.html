@@ -16,6 +16,13 @@
             <q-item-label class="text-h6" >Analysed text</q-item-label>
             <q-item-label > {{item.body}} </q-item-label>
         </q-card-section>
+          
+        <q-card-section class="q-pt-none">
+            <q-item-label class="text-h6" >Detected Keywords</q-item-label>
+            <q-item-label > 
+                 <q-badge :id="id" v-for="kw in item.cls.keywords" :label="kw" style="margin:2px" >{{kw}}</q-badge> 
+            </q-item-label>
+        </q-card-section>
 
         <q-card-section>
           <q-item-label class="text-h6" >Classification</q-item-label>
@@ -58,8 +65,8 @@
                     <q-item-section>
                         <q-item-label :class="doc.label?'text-red':'text-green'" overline>{{doc.label?"Fake News" : "True News"}}</q-item-label>
                         <q-item-label>Similartiy: 
-                            <q-badge v-if="doc.distance < 0.4" outline color="red" label="HIGH" />
-                            <q-badge v-else-if="doc.distance < 0.8" outline color="yellow" label="MEDIUM" />
+                            <q-badge v-if="doc.distance < 0.3" outline color="red" label="HIGH" />
+                            <q-badge v-else-if="doc.distance < 0.6" outline color="yellow" label="MEDIUM" />
                             <q-badge v-else outline color="blue" label="LOW" />
                         </q-item-label>
                         <q-item-label caption>

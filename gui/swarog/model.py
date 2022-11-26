@@ -81,6 +81,7 @@ class BERTEmbeddings:
 
 def get_related_docs(_sentence):
     # get tf-idf values
+    print("--->_sentence",_sentence)
     vec = tfidf_vectorizer.transform([_sentence]).toarray()[0]
     
     # zip (word, word_wieght)
@@ -88,27 +89,31 @@ def get_related_docs(_sentence):
                     key=lambda tup: -tup[0])
 
     conn = sqlite3.connect(f'{PATH_PICKLES}/swarog.sqlite')
-    wordmap = {}
+    _resp=[]
     # in which doc is the word_id (iterate over)
     for _range in range(0,min(20,len(_words))):
         x=_words[_range]
-        _chain = (x[0],re.sub(r'[^a-zA-Z0-9]', '', x[1]))
+        _chain = (x[0],re.sub(r'[^a-zA-Z0-9]', ' ', x[1]).split(" ")[0])
+
         if len(_chain[1]) == 0:
             continue
-            
-        c = conn.cursor()
-        c.execute(f"""select rowid from rawsearch where body match '{_chain[1]}' limit 10000""")
-        docsids = c.fetchall()
-        for _r in docsids:
-            if not _r[0] in wordmap:
-                wordmap[_r[0]] = 0
-            wordmap[_r[0]] = _chain[0] + 1 #+ wordmap[_r[0]]
 
-    common = sorted(wordmap.items(), key=lambda tup: -tup[1])[:10]
+        print(_chain)
     
-    c = conn.cursor()
+        c = conn.cursor()
+        c.execute(f"""select rowid from rawsearch where body match '{_chain[1]}' """)
+        docsids = c.fetchall()
+        r=[x[0] for x in docsids]
+        _resp.extend(r)
+
+
+    from collections import Counter
+    ctr=Counter(_resp)
+    common = ctr.most_common(10)
+
+    print("common",common)
     resp = []
-    for doc_index, _docid in enumerate(common):
+    for _docid in common:
         c.execute(f"""select label, dataset, body from rawsearch where rowid = {_docid[0]} """)
         _results_hits = c.fetchall()[0]
         resp.append({
@@ -116,11 +121,11 @@ def get_related_docs(_sentence):
             'label':_results_hits[0],
             'dataset':_results_hits[1],
             'distance':1.0 - _docid[1]*1.0/min(20,len(_words))})
-
+    print(resp)
     conn.close()
     
-    print(resp)
-    return resp
+    #print(resp)
+    return resp,_words[:10]
     #_resp
 
     
@@ -131,11 +136,13 @@ def get_related_docs(_sentence):
           
 bertemb = BERTEmbeddings()
 
+print("load domain_cls")
 with open(f'{PATH_PICKLES}/domain_cls.pickle', 'rb') as handle:
     pipe_domain = pickle.load(handle)
     
 domain_model_pipe = []
 for i in range(6):
+    print(f'load {PATH_PICKLES}/model_{i}.pickle')
     with open(f'{PATH_PICKLES}/model_{i}.pickle', 'rb') as handle:
         p=pickle.load(handle)
         domain_model_pipe.append(p)
@@ -143,19 +150,23 @@ for i in range(6):
           
 def predict(_input):
     vec = bertemb.transform([_input])
+    print("--->",_input)
     category = pipe_domain.predict(vec)[0]
+    print("--->category",category)
     category_proba = pipe_domain.predict_proba(vec)[0]
-    result = domain_model_pipe[1+category].predict(vec)[0]
-    result_proba = domain_model_pipe[1+category].predict_proba(vec)[0]
+    result = domain_model_pipe[category].predict(vec)[0]
+    result_proba = domain_model_pipe[category].predict_proba(vec)[0]
+    print("--->pred",result)
 
     #similar_articles = get_related_articles(input_series['text'])
     #similar_articles = get_related_articles_bert(vec[0])
           
-    similar_articles = get_related_docs(_input)
+    similar_articles,keywords = get_related_docs(_input)
     
     return {'result': result, 
             'result_proba': result_proba,
             'domain': category, 
             'domain_proba' : category_proba,
-            'similar_articles': similar_articles
+            'similar_articles': similar_articles, 
+            'keywords':[_x[1] for _x in keywords],
            }
