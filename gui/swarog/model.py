@@ -25,22 +25,18 @@ import pickle5 as pickle
 import sqlite3
 from lematizer import LemmaTokenizer
 
-nltk.download('omw-1.4')
 
 PATH_PICKLES = './pickles'
-
-class MyCustomUnpickler(pickle.Unpickler):
-    def find_class(self, module, name):
-        if module == "__main__":
-            module = "lematizer"
-        return super().find_class(module, name)
+ 
 
 print("load vectorizer")    
 with open(f'{PATH_PICKLES}/tfidf_vectorizer_full.pickle', 'rb') as handle:
-    unp = MyCustomUnpickler(handle)
-    tfidf_vectorizer = unp.load()
-    
+    tfidf_vectorizer = pickle.load(handle)
+
 vocabulary_tfidf_words = tfidf_vectorizer.get_feature_names_out()
+
+
+nltk.download('omw-1.4')
 
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 print("using device:", device)

@@ -9,8 +9,12 @@ from pydantic import BaseModel
 import datetime
 import model
 import numpy as np
+from lematizer import LemmaTokenizer
+import pickle5 as pickle
 
 app = FastAPI()
+
+
 
 ##########################################################################
 # STORAGE
