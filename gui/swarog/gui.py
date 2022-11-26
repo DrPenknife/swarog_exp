@@ -7,8 +7,38 @@ import json
 import requests
 from pydantic import BaseModel
 import datetime
+import model
+import numpy as np
 
 app = FastAPI()
+
+##########################################################################
+# STORAGE
+#  
+
+class NpEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return float(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return json.JSONEncoder.default(self, obj)
+
+def history_get():
+    with open("history.json", 'r',  encoding="utf-8") as fhandle:
+        db = json.load(fhandle)
+    return db   
+
+def history_add(db):
+    with open("history.json", 'w',  encoding="utf-8") as fhandle:
+        json.dump(db,fhandle, indent = 6, cls=NpEncoder)    
+
+        
+##########################################################################
+#
+#  
 
 component_template = """
 // {{{name}}}
@@ -22,22 +52,8 @@ class TxtDocument(BaseModel):
     text: str
 
 
-def history_get():
-    with open("history.json", 'r',  encoding="utf-8") as fhandle:
-        db = json.load(fhandle)
-    return db   
-
-def history_add(db):
-    with open("history.json", 'w',  encoding="utf-8") as fhandle:
-        json.dump(db,fhandle, indent = 6)    
-
-        
-##########################################################################
-#
-#       
 @app.get("/", response_class=HTMLResponse)
 async def root():
-    
     path = join("vue", "components")
     payload = ""
     for f in listdir(path):
@@ -63,7 +79,7 @@ async def root():
 @app.get("/swarog/api/history")
 async def history():
     return history_get()    
-    
+     
     
 
 ##########################################################################
@@ -73,12 +89,9 @@ async def history():
 async def analysis(doc: TxtDocument):
     db = history_get() 
     
-    pred = requests.post(
-     "http://localhost:3000/predict",
-     headers={"content-type": "application/json"},
-     json={"text" : doc.text}
-    ).json()
+    pred = model.predict(doc.text)
     
+    print(pred)
     
     db.append({
           'cls': pred,
@@ -90,6 +103,6 @@ async def analysis(doc: TxtDocument):
     history_add(db)
     
     return doc
-
+ 
       
     

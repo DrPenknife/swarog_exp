@@ -58,8 +58,8 @@
                     <q-item-section>
                         <q-item-label overline>{{doc.label?"Fake News" : "True News"}}</q-item-label>
                         <q-item-label>Similartiy: 
-                            <q-badge v-if="doc.distance < 0.6" outline color="red" label="HIGH" />
-                            <q-badge v-else-if="doc.distance < 0.9" outline color="yellow" label="MEDIUM" />
+                            <q-badge v-if="doc.distance < 0.3" outline color="red" label="HIGH" />
+                            <q-badge v-else-if="doc.distance < 0.6" outline color="yellow" label="MEDIUM" />
                             <q-badge v-else outline color="blue" label="LOW" />
                         </q-item-label>
                         <q-item-label caption>
@@ -81,7 +81,7 @@
     <q-dialog v-model="related_doc_dialog"  full-width style="height:60%">
       <q-card>
         <q-card-section>
-          <q-badge v-if="!related_doc_dialog.label" rounded color="red" label="FAKE"></q-badge>
+          <q-badge v-if="related_doc_item.label" rounded color="red" label="FAKE"></q-badge>
           <q-badge v-else rounded color="green" label="TRUE"></q-badge>
 
         </q-card-section>

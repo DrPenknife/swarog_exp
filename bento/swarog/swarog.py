@@ -3,7 +3,7 @@ import bentoml
 from bentoml.io import NumpyNdarray
 from bentoml.io import JSON
 from annoy import AnnoyIndex
-
+import re
 
 import transformers
 transformers.logging.set_verbosity_error()
@@ -34,13 +34,9 @@ class MyCustomUnpickler(pickle.Unpickler):
         return super().find_class(module, name)
 
 print("load vectorizer")    
-with open(f'../../pickles/swarog_data/tfidf_vectorizer.pickle', 'rb') as handle:
+with open(f'../../pickles/swarog_data/tfidf_vectorizer_full.pickle', 'rb') as handle:
     unp = MyCustomUnpickler(handle)
     tfidf_vectorizer = unp.load()
-
-
-
-
 
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 print("using device:", device)
@@ -50,15 +46,39 @@ if "disilbert_model" not in locals():
     disilbert_model = AutoModel.from_pretrained("distilbert-base-uncased")
     handle = disilbert_model.to(device)
 
-tfidf = AnnoyIndex(7000, 'angular')
-print("load tfidf annoy index...")
-tfidf.load('../../pickles/swarog_data/swarog_tfidf.ann')
+# tfidf = AnnoyIndex(7000, 'angular')
+# print("load tfidf annoy index...")
+# tfidf.load('../../pickles/swarog_data/swarog_tfidf_7k.ann')
 
-bert = AnnoyIndex(768, 'angular')
-print("load bert annoy index...")
-bert.load('../../pickles/swarog_data/swarog_bertcls.ann')
+# bert = AnnoyIndex(768, 'angular')
+# print("load bert annoy index...")
+# bert.load('../../pickles/swarog_data/swarog_bertcls.ann')
 
-
+def get_related_articles_ft5(txt):
+    _names = tfidf_vectorizer.get_feature_names_out()
+    _chain = sorted(list(zip(vec[np.where(vec > 0)], _names[np.where(vec > 0)[0]])), key=lambda tup: -tup[0])[:10]
+    _chainstr = " ".join([re.sub(r'[^a-zA-Z0-9]', '', t[1]) for t in _chain])
+    
+    vec = tfidf_vectorizer.transform([txt]).toarray()[0]
+    hits = tfidf.get_nns_by_vector(vec, 10, search_k=-1, include_distances=True)
+    resp = []
+    conn = sqlite3.connect('../../pickles/swarog_data/swarog.sqlite')
+    c = conn.cursor()
+    c.execute("""select rowid,label, dataset, body from rawsearch where body match ?""",_chainstr)
+    r=c.fetchall()
+    
+    for index,_id in enumerate(hits[0]):
+        c.execute("""select raw.body,raw.label, raw.dataset 
+                from raw join tfidf on (tfidf.gid=raw.rowid) 
+                where tfidf.rowid=?""",[_id+1])
+        r=c.fetchall()
+        resp.append({
+            'text':r[0][0],
+            'label':r[0][1],
+            'dataset':r[0][2],
+            'distance':hits[1][index]})
+    conn.close()
+    return resp
 
 
 def get_related_articles(txt):
@@ -70,7 +90,26 @@ def get_related_articles(txt):
     for index,_id in enumerate(hits[0]):
         c.execute("""select raw.body,raw.label, raw.dataset 
                 from raw join tfidf on (tfidf.gid=raw.rowid) 
-                where tfidf.rowid=?""",[_id])
+                where tfidf.rowid=?""",[_id+1])
+        r=c.fetchall()
+        resp.append({
+            'text':r[0][0],
+            'label':r[0][1],
+            'dataset':r[0][2],
+            'distance':hits[1][index]})
+    conn.close()
+    return resp
+
+
+def get_related_articles_bert(_vector):
+    hits = bert.get_nns_by_vector(_vector, 10, search_k=-1, include_distances=True)
+    resp = []
+    conn = sqlite3.connect('../../pickles/swarog_data/swarog.sqlite')
+    c = conn.cursor()
+    for index,_id in enumerate(hits[0]):
+        c.execute("""select raw.body,raw.label, raw.dataset 
+                from raw join bertcls on (bertcls.gid=raw.rowid) 
+                where bertcls.rowid=?""",[_id+1])
         r=c.fetchall()
         resp.append({
             'text':r[0][0],
@@ -128,6 +167,7 @@ def predict(input_series: np.ndarray) -> np.ndarray:
     result_proba = runners[1+category].predict_proba.run(vec)[0]
 
     similar_articles = get_related_articles(input_series['text'])
+    #similar_articles = get_related_articles_bert(vec[0])
     
     return {'result': result, 
             'result_proba': result_proba,
