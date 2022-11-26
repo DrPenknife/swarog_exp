@@ -56,10 +56,10 @@
             <q-list bordered>
                 <q-item v-for="doc,id in item.cls.similar_articles" clickable v-ripple @click="onclick_related_doc(id)">
                     <q-item-section>
-                        <q-item-label overline>{{doc.label?"Fake News" : "True News"}}</q-item-label>
+                        <q-item-label :class="doc.label?'text-red':'text-green'" overline>{{doc.label?"Fake News" : "True News"}}</q-item-label>
                         <q-item-label>Similartiy: 
-                            <q-badge v-if="doc.distance < 0.3" outline color="red" label="HIGH" />
-                            <q-badge v-else-if="doc.distance < 0.6" outline color="yellow" label="MEDIUM" />
+                            <q-badge v-if="doc.distance < 0.4" outline color="red" label="HIGH" />
+                            <q-badge v-else-if="doc.distance < 0.8" outline color="yellow" label="MEDIUM" />
                             <q-badge v-else outline color="blue" label="LOW" />
                         </q-item-label>
                         <q-item-label caption>

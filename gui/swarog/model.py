@@ -80,33 +80,31 @@ class BERTEmbeddings:
 
 
 def get_related_docs(_sentence):
+    # get tf-idf values
     vec = tfidf_vectorizer.transform([_sentence]).toarray()[0]
+    
+    # zip (word, word_wieght)
     _words = sorted(list(zip(vec[np.where(vec > 0)], vocabulary_tfidf_words[np.where(vec > 0)[0]])), 
                     key=lambda tup: -tup[0])
 
     conn = sqlite3.connect(f'{PATH_PICKLES}/swarog.sqlite')
-    _resp = []
+    wordmap = {}
+    # in which doc is the word_id (iterate over)
     for _range in range(0,min(20,len(_words))):
         x=_words[_range]
         _chain = (x[0],re.sub(r'[^a-zA-Z0-9]', '', x[1]))
-
         if len(_chain[1]) == 0:
             continue
-
-        #print(_chain)
-
+            
         c = conn.cursor()
-        c.execute(f"""select rowid from rawsearch where body match '{_chain[1]}' limit 1000""")
-        r=[x[0] for x in c.fetchall()]
-        _resp.extend(r)
-        # print(10-_range,"->",len(r), "    ", _chainstr)
+        c.execute(f"""select rowid from rawsearch where body match '{_chain[1]}' limit 10000""")
+        docsids = c.fetchall()
+        for _r in docsids:
+            if not _r[0] in wordmap:
+                wordmap[_r[0]] = 0
+            wordmap[_r[0]] = _chain[0] + 1 #+ wordmap[_r[0]]
 
-
-
-    from collections import Counter
-    ctr=Counter(_resp)
-    common = ctr.most_common(10)
-
+    common = sorted(wordmap.items(), key=lambda tup: -tup[1])[:10]
     
     c = conn.cursor()
     resp = []
