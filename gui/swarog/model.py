@@ -25,16 +25,13 @@ import pickle5 as pickle
 import sqlite3
 from lematizer import LemmaTokenizer
 
-
 PATH_PICKLES = './pickles'
  
-
 print("load vectorizer")    
 with open(f'{PATH_PICKLES}/tfidf_vectorizer_full.pickle', 'rb') as handle:
     tfidf_vectorizer = pickle.load(handle)
 
 vocabulary_tfidf_words = tfidf_vectorizer.get_feature_names_out()
-
 
 nltk.download('omw-1.4')
 

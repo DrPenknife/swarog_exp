@@ -1,16 +1,7 @@
 <q-list>
-  <!-- <q-item clickable @click="emit('cyberPage','m11')">
-      <q-item-section avatar>
-        <q-icon name="input">
-        </q-icon>
-      </q-item-section>
-      <q-item-section>
-        <q-item-label>Event Sources</q-item-label>
-        <q-item-label caption>Management</q-item-label>
-      </q-item-section>
-  </q-item> -->
-  
-  <q-item-label header class="text-purple-6  text-weight-bold">Analysis</q-item-label>
+  <q-item-label header class="text-purple-6  text-weight-bold">
+    Analysis
+  </q-item-label>
   <q-item clickable @click="emit('cyberPage','m21')" :active="this.selected=='m21'">
       <q-item-section avatar>
         <q-icon name="beenhere">
@@ -40,28 +31,16 @@ mounted: function(){
   this.$root.$on('cyberPage_change', this.cyberPage)
 },
 
-
 methods:{
   emit: function(ename,evalue){
     this.selected = evalue
     this.$root.$emit(ename, evalue)
-  },
-  logout: function(){
-    axios.get("/oauth2/logout")
-    .then(r=>{
-      console.log("log out...")
-      window.location.href="https://sso.ensuresec.eu/oauth2/logout?client_id=b26df786-d058-4244-ab44-c986362918aa"
-    })
-    .catch(r=>{
-      window.location.href="https://sso.ensuresec.eu/oauth2/logout?client_id=b26df786-d058-4244-ab44-c986362918aa"
-    })
   },
   cyberPage: function(e){
     this.selected = e
     this.$root.$emit('cyberPage', e)
   }
 },
-
 
 data:function(){
   return {

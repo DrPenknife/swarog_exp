@@ -14,7 +14,7 @@
           <div v-if="$q.screen.gt.xs" style="float:left">
            <!-- <img src="/rme/logo" style="width:90%; margin-top:10px"> </img>-->
           </div>
-          <div> SWAROG </div>
+          <div></div>
         </q-toolbar-title>
       </q-toolbar>
     </q-header> 
@@ -24,10 +24,10 @@
       :width="210"
       content-class="bg-grey-2"
     >
-      <cybermenu></cybermenu>
+      <pagemenu></pagemenu>
     </q-drawer>
     <q-page-container>
-      <cyberhome> </cyberhome>
+      <pagecontent> </pagecontent>
     </q-page-container> 
   </q-layout>
 
@@ -35,8 +35,7 @@
 
 data: function(){
     return {
-      page: "cyberhome",
-      title: "Soft Target Protection"
+      page: "home"
     }
 },
 
