@@ -84,6 +84,15 @@ async def root():
 async def history():
     return history_get()    
      
+
+
+##########################################################################
+#
+#
+@app.get("/swarog/api/search")
+async def search(text):
+    resp, keywords = model.get_related_docs(text)
+    return resp
     
 
 ##########################################################################

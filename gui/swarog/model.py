@@ -14,7 +14,6 @@ from transformers import AutoModel
 from transformers import TFDistilBertModel, DistilBertTokenizerFast
 import torch
 from scipy.sparse import csr_matrix
-from tqdm import tqdm
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from nltk import word_tokenize          
@@ -60,7 +59,7 @@ class BERTEmbeddings:
     def transform(self, X=None):
         dataloader = DataLoader(X, batch_size=4, shuffle=False)
         allembeds = []
-        for batch in tqdm(dataloader):
+        for batch in dataloader:
             batchenc = disilbert_tokenizer(batch, max_length=256, 
                                            truncation=True, padding=True, return_tensors="pt")
             input_ids = batchenc['input_ids'].to(device)
@@ -140,7 +139,12 @@ for i in range(6):
         p=pickle.load(handle)
         domain_model_pipe.append(p)
         
-          
+def predict_label(_input):
+    vec = bertemb.transform([_input])
+    category = pipe_domain.predict(vec)[0]
+    result = domain_model_pipe[category].predict(vec)[0]
+    return result
+      
 def predict(_input):
     vec = bertemb.transform([_input])
     print("--->",_input)
