@@ -71,34 +71,40 @@ class BERTEmbeddings:
         return np.array(allembeds)
 
 
-def get_related_docs(_sentence):
+def get_related_docs(_sentence, max_keywords=7):
     # get tf-idf values
-    print("--->_sentence",_sentence)
     vec = tfidf_vectorizer.transform([_sentence]).toarray()[0]
     
     # zip (word, word_wieght)
-    _words = sorted(list(zip(vec[np.where(vec > 0)], vocabulary_tfidf_words[np.where(vec > 0)[0]])), 
-                    key=lambda tup: -tup[0])
+    # get sorted by TF-IDF score
+    _words = sorted(list(zip(vec[np.where(vec > 0)], vocabulary_tfidf_words[np.where(vec > 0)[0]])), key=lambda tup: -tup[0])
 
     conn = sqlite3.connect(f'{PATH_PICKLES}/swarog.sqlite')
     _resp=[]
+    hitkeywords = {}
     # in which doc is the word_id (iterate over)
-    for _range in range(0,min(20,len(_words))):
+    for _range in range(0,min(max_keywords,len(_words))):
         x=_words[_range]
+
+        #replace non-ascii to spapces
         _chain = (x[0],re.sub(r'[^a-zA-Z0-9]', ' ', x[1]).split(" ")[0])
 
         if len(_chain[1]) == 0:
             continue
-
-        print(_chain)
-    
+        
         c = conn.cursor()
         c.execute(f"""select rowid from rawsearch where body match '{_chain[1]}' """)
         docsids = c.fetchall()
         r=[x[0] for x in docsids]
         _resp.extend(r)
+        for x in docsids:
+            # document_id -> [array of keywords] map
+            if not x[0] in hitkeywords:
+                hitkeywords[x[0]] = []
 
+            hitkeywords[x[0]].append(_chain[1])
 
+ 
     from collections import Counter
     ctr=Counter(_resp)
     common = ctr.most_common(10)
@@ -112,12 +118,12 @@ def get_related_docs(_sentence):
             'text':_results_hits[2],
             'label':_results_hits[0],
             'dataset':_results_hits[1],
+            'keywords': hitkeywords[_docid[0]],
             'distance':1.0 - _docid[1]*1.0/min(20,len(_words))})
-    print(resp)
     conn.close()
     
     #print(resp)
-    return resp,_words[:10]
+    return resp,_words[:max_keywords]
     #_resp
 
     
