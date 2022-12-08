@@ -119,7 +119,7 @@ def get_related_docs(_sentence, max_keywords=7):
             'label':_results_hits[0],
             'dataset':_results_hits[1],
             'keywords': hitkeywords[_docid[0]],
-            'distance':1.0 - _docid[1]*1.0/min(20,len(_words))})
+            'distance':1.0 - _docid[1]*1.0/min(max_keywords,len(_words))})
     conn.close()
     
     #print(resp)
