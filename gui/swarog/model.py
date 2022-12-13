@@ -71,13 +71,17 @@ class BERTEmbeddings:
         return np.array(allembeds)
 
 
+def tfidf_to_words(vec):
+    return sorted(list(zip(vec[np.where(vec > 0)], vocabulary_tfidf_words[np.where(vec > 0)[0]])), key=lambda tup: -tup[0])
+
+
 def get_related_docs(_sentence, max_keywords=7):
     # get tf-idf values
     vec = tfidf_vectorizer.transform([_sentence]).toarray()[0]
     
     # zip (word, word_wieght)
     # get sorted by TF-IDF score
-    _words = sorted(list(zip(vec[np.where(vec > 0)], vocabulary_tfidf_words[np.where(vec > 0)[0]])), key=lambda tup: -tup[0])
+    _words = tfidf_to_words(vec)
 
     conn = sqlite3.connect(f'{PATH_PICKLES}/swarog.sqlite')
     _resp=[]
@@ -114,16 +118,19 @@ def get_related_docs(_sentence, max_keywords=7):
     for _docid in common:
         c.execute(f"""select label, dataset, body from rawsearch where rowid = {_docid[0]} """)
         _results_hits = c.fetchall()[0]
+        _doc_tfidf_vec = tfidf_vectorizer.transform([_results_hits[2]]).toarray()[0]
+        _doc_words = [x[1] for x in tfidf_to_words(_doc_tfidf_vec)]
         resp.append({
             'text':_results_hits[2],
             'label':_results_hits[0],
             'dataset':_results_hits[1],
-            'keywords': hitkeywords[_docid[0]],
+            'hit_keywords': hitkeywords[_docid[0]],
+            'keywords': _doc_words[:2*max_keywords],
             'distance':1.0 - _docid[1]*1.0/min(max_keywords,len(_words))})
     conn.close()
     
     #print(resp)
-    return resp,_words[:max_keywords]
+    return resp,_words[:2*max_keywords]
     #_resp
 
     
