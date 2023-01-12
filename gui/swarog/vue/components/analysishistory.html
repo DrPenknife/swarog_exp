@@ -70,7 +70,8 @@
                             <q-badge v-else outline color="blue" label="LOW SIMILARITY" />
                         </q-item-label >
                         <q-item-label overline>Source: {{doc.dataset}}</q-item-label>
-                        <q-item-label overline>Key words: {{doc.keywords}}</q-item-label>
+                        <q-item-label overline>Hits: {{doc.hit_keywords.join(", ")}}</q-item-label>
+                        <q-item-label overline>Key words: {{doc.keywords.join(", ")}}</q-item-label>
                         <q-item-label caption>
                             {{doc.text.substring(0,1200)}}[...]
                         </q-item-label>

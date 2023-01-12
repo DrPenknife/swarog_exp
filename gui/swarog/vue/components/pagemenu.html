@@ -23,6 +23,17 @@
       <q-item-label caption>Analyses</q-item-label>
     </q-item-section>
   </q-item>
+
+  <q-item clickable @click="emit('cyberPage','m23')" :active="this.selected=='m23'">
+    <q-item-section avatar>
+      <q-icon name="search">
+      </q-icon>
+    </q-item-section>
+    <q-item-section>
+      <q-item-label>Search</q-item-label>
+      <q-item-label caption>Documents</q-item-label>
+    </q-item-section>
+  </q-item>
   
 </q-list>
 

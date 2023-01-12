@@ -1,0 +1,63 @@
+<div class="q-pa-md" style="width:100%" >
+  <q-spinner-gears class="fixed-center" v-if="loading" size="50px" color="deep-purple-12">
+  </q-spinner-gears>
+
+
+
+   <!-- search box -->
+   <q-input
+      v-model="search"
+      filled :debounce="900"
+      placeholder="Type phrase for searching..."
+      >
+      <template v-slot:append>
+         <q-icon name="search" ></q-icon>
+      </template>
+   </q-input>
+
+
+   <q-list v-if="search_result.length > 0"  bordered separator>
+      <q-item :key="id" v-for="doc,id in search_result" >
+         <q-item-section>
+            <q-item-label>
+               <q-badge v-if="doc.label" rounded color="red" label="FAKE NEWS"></q-badge>
+               <q-badge v-else rounded color="green" label="TRUE NEWS"></q-badge>
+
+            </q-item-label>
+            <q-item-label caption>hits: {{doc.hit_keywords.join(", ")}}</q-item-label>
+            <q-item-label caption>keywords: {{doc.keywords.join(", ")}}</q-item-label>
+            <q-item-label>{{doc.text}}</q-item-label>
+         </q-item-section>
+      </q-item>
+   </q-list>
+
+
+      
+
+</div>
+<script>
+    mounted: function () {
+    },
+    
+    methods: {
+    },
+
+    watch: {
+        search: function(){
+            const q = this.search.replace(" ","+")
+            console.log(q)
+            axios.get(`/swarog/api/search?text=${q}`)
+            .then(x=>{
+              this.search_result = x.data
+            })
+        }
+    },
+    
+    data: function () {
+        return {
+            loading: false,
+            search:"",
+            search_result: []
+        }
+    }
+</script>
