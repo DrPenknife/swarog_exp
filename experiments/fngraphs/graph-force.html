@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" style="height: 100%">
+<head>
+  <meta charset="utf-8">
+</head>
+<body style="height: 100%; margin: 0">
+  <div id="container" style="height: 100%"></div>
+  <script type="text/javascript" src="https://fastly.jsdelivr.net/npm/echarts@5.4.2/dist/echarts.min.js"></script>
+  <script type="text/javascript">
+    var dom = document.getElementById('container');
+    var myChart = echarts.init(dom, null, {
+      renderer: 'canvas',
+      useDirtyRect: false
+    });
+    var app = {};
+    var ROOT_PATH = 'https://echarts.apache.org/examples';
+    var option;
+    myChart.showLoading();
+    myChart.hideLoading();
+    option = {
+        tooltip: {},
+        legend: [
+          {
+            // selectedMode: 'single',
+            // data: ["A","B"]
+          }
+        ],
+        series: [
+          {
+            type: 'graph',
+            layout: 'force',
+            data: [
+                {name:"1", category:0},
+                {name:"2", category:1}
+            ],
+            links: [{source: 0, target: 1}],
+            categories: [{name:"User"},{name:"Owner"}],
+            roam: true,
+            label: {
+              show:true,
+              position: 'right'
+            },
+            force: {
+              initLayout: 'circular',
+              // gravity: 0
+              repulsion: 100,
+              edgeLength: 5
+            }
+          }
+        ]
+    };
+    myChart.setOption(option);
+
+    if (option && typeof option === 'object') {
+      myChart.setOption(option);
+    }
+    window.addEventListener('resize', myChart.resize);
+  </script>
+</body>
+</html>
